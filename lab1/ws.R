@@ -62,7 +62,7 @@ lines(P, L,
 	type='o', col='red')
 
 legend("topright",
-	legend = c("Cp/C0", "Lp/L0"),
+	legend = c("C(p)/C(0)", "L(p)/L(0)"),
 	col=c('black', 'red'), pch=c(1,1), lty=c(1,1))
 
 grid()
