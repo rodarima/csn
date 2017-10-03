@@ -1,4 +1,4 @@
-library(igraph)
+library(igraph, warn.conflicts = FALSE)
 
 # Constants
 
