@@ -1,13 +1,16 @@
 library(igraph, warn.conflicts = FALSE)
+library(ggplot2)
 
 N_MIN = 500
-N_MAX = 10000
+N_MAX = 5000
 N_STEP = 500
 DATA_FILE = "er.data"
 REP = 10
-UPDATE = FALSE
-N_RANGE = seq(N_MIN, N_MAX, N_STEP)
+UPDATE = T
+N_RANGE = c(50, 100, 200, seq(N_MIN, N_MAX, N_STEP))
 M = length(N_RANGE)
+EPSILON = 0.5
+SIZE = 4
 
 if(UPDATE)
 {
@@ -15,11 +18,12 @@ if(UPDATE)
 
 	for(i in seq(M)) {
 		n = N_RANGE[i]
-		print(n)
-		p_hat = log(n)/n
+		print(sprintf("%d of %d. n = %d", i, M, n))
+		p_hat = (1+EPSILON) * log(n)/n
 		avgv = rep(0, REP)
 		for(j in seq(REP)) {
 			er = erdos.renyi.game(n, p_hat)
+			edge_connectivity(er)
 			avgv[j] = average.path.length(er)
 		}
 		avgsp[i] = mean(avgv)
@@ -30,7 +34,7 @@ if(UPDATE)
 	load(DATA_FILE)
 }
 
-pdf(file="er.pdf")
-plot(N_RANGE, avgsp, type='o', xlab='Number of nodes', ylab='Average shortest path',
-	main='Erdös-Rényi graph (p = ln(n)/n)')
+pdf(file="er.pdf", width=SIZE, height=SIZE)
+print(qplot(N_RANGE, avgsp, type='o', xlab='Number of nodes', ylab='Average shortest path')
+	+ geom_line() + theme_bw())
 dev.off()
