@@ -1,0 +1,129 @@
+\documentclass[a4paper]{article}
+%\usepackage{amsfonts}
+%\usepackage{amsmath}
+%\usepackage{amsthm}
+\usepackage[utf8]{inputenc}
+%\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+%\usepackage{subfig}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{siunitx}
+%\sisetup{retain-zero-exponent=true}%
+\newminted{py}{%
+%		linenos,
+		fontsize=\small,
+		tabsize=2,
+		mathescape,
+}
+\newminted{text}{%
+%		linenos,
+		fontsize=\small,
+		tabsize=2,
+		mathescape,
+}
+
+\title{Lab 3: Significance of network metrics}
+\author{Rodrigo Arias Mallo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{The metric}
+
+For selecting the metric, I set the seed to the last 5 digits of my DNI, as 
+recently seen in some hash generation\footnote{	
+\url{http://klondike.es/klog/2017/09/25/descifrando-las-bases-de-datos-del-referendum-catalan/}}, 
+and ran the following command in python:
+%
+\begin{pycode}
+from random import *
+
+seed(64718)
+metrics = ["clustering coefficient", "closeness centrality"]
+r = randint(0, 1)
+
+print(metrics[r])
+\end{pycode}
+%
+Which produced the following output
+%
+\begin{textcode}
+% python metric.py
+clustering coefficient
+\end{textcode}
+%
+So I decided to use clustering coefficient $C_{WS}$ as a metric.
+
+\section{Introduction}
+
+\subsection{Cleaning the data}
+
+The datasets have been uncompressed in \texttt{data/}, and then processed by the 
+script \texttt{prepare-data.sh}, which removes the header with the number of 
+nodes and edges, and outputs the remaining edge list in the same file with a new 
+extension \texttt{.edges}. The properties of the graphs can be seen at the 
+table~\ref{tab:prop}.
+
+\begin{table}[h]
+	\centering
+	\input{table1.tex}
+	\caption{Properties of the graphs after preproccesing.}
+	\label{tab:prop}
+\end{table}
+
+After some research I found the BiRewire R package \cite{birewire} written by A.  
+Gobbi, a fast implementation of the switchin model \cite{gobbi14} 
+\cite{gobbi17}.
+
+\section{Proposition}
+
+Based on some properties of a graph $\hat G$, we want to create a sequence of 
+random graphs $\langle G \rangle$ by using two different methods, and then test 
+if they maintain a set of measures that we found on $\hat G$.
+
+The first model, the Erdös--Rényi graph takes as input the number of vertex 
+$|V|$ and edges $|E|$ of $\hat G$, and builds a new random graph with the same 
+number of vertex and edges. The clustering coefficient is then computed for each 
+graph in the sequence $\langle G \rangle$ as $\langle X \rangle$.
+
+We can consider the measurement $X$ as a random variable, with mean $E[X]$ and 
+variance $VAR[X]$. By computing $T$ elements in the sequence, the sample mean 
+$\overline X$ is an unbiased estimator of $E[X]$, and by the central limit 
+theorem, the sample $\overline X$ is distributed 
+
+\subsection{Erdös--Rényi model}
+
+The ER model is implemented in \texttt{python} using the \texttt{networkx} 
+package.  The \texttt{gnm\_random\_graph} creates a ER graph with parameters 
+$|V|$ and $|E|$. An average of $T = 25$ graphs is performed. The measure is 
+taken by calling \texttt{average\_clustering}.
+%
+\begin{table}[h]
+	\centering
+	\input{table2.tex}
+	\caption{The measures of ER model.}
+	\label{tab:models}
+\end{table}
+%
+We see that none of the generated graphs contain a value greater that the 
+original one. We can conclude that, even the ER model keeps the number of nodes 
+and edges, the clustering coefficient is smaller.
+
+\section{Results}
+
+
+
+\section{Discussion}
+
+\section{Methods}
+
+
+
+\bibliographystyle{unsrt}
+\bibliography{biblio}
+
+\end{document}
