@@ -39,7 +39,7 @@ def table2_row(fn, lang):
 	
 	prob_er, x, mean_er = model_er(G)
 
-	row = np.array([lang, x, prob_er, mean_er])
+	row = np.array([lang, x, mean_er, prob_er])
 	return row
 
 def table2(langs_fn):
@@ -55,7 +55,7 @@ def table2(langs_fn):
 		table.append(row)
 
 	latex_table = tabulate(table, tablefmt="latex_booktabs", floatfmt=".3E",
-		headers=['Language', '$x$', '$p(x_{ER} \ge x)$', '$\overline x_{ER}$'])
+		headers=['Language', '$x$', '$\overline x_{ER}$', '$p(x_{ER} \ge x)$'])
 	
 	latex_table = re.sub('([+-]?[0-9]\.[0-9]*E[+-]?[0-9]*)', r'\\num{\1}', latex_table)
 	
