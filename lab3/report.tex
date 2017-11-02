@@ -32,7 +32,8 @@
 \begin{document}
 \maketitle
 
-\section{The metric}
+\section{Introduction}
+\subsection{The metric}
 
 For selecting the metric, I set the seed to the last 5 digits of my DNI, as 
 recently seen in some hash generation\footnote{	
@@ -56,9 +57,8 @@ Which produced the following output
 clustering coefficient
 \end{textcode}
 %
-So I decided to use clustering coefficient $C_{WS}$ as a metric.
+So I decided to use clustering coefficient $C_{WS}$ as the metric $x$.
 
-\section{Introduction}
 
 \subsection{Cleaning the data}
 
@@ -75,25 +75,18 @@ table~\ref{tab:prop}.
 	\label{tab:prop}
 \end{table}
 
-After some research I found the BiRewire R package \cite{birewire} written by A.  
-Gobbi, a fast implementation of the switchin model \cite{gobbi14} 
-\cite{gobbi17}.
+\section{Experiments}
 
-\section{Proposition}
-
-Based on some properties of a graph $\hat G$, we want to create a sequence of 
-random graphs $\langle G \rangle$ by using two different methods, and then test 
-if they maintain a set of measures that we found on $\hat G$.
+Based on some properties of a graph $G$, we want to create a sequence of random 
+graphs $\langle G \rangle$ by using two different methods, and then test if they 
+maintain a set of measures that we found on $G$.
 
 The first model, the Erdös--Rényi graph takes as input the number of vertex 
-$|V|$ and edges $|E|$ of $\hat G$, and builds a new random graph with the same 
-number of vertex and edges. The clustering coefficient is then computed for each 
-graph in the sequence $\langle G \rangle$ as $\langle X \rangle$.
-
-We can consider the measurement $X$ as a random variable, with mean $E[X]$ and 
-variance $VAR[X]$. By computing $T$ elements in the sequence, the sample mean 
-$\overline X$ is an unbiased estimator of $E[X]$, and by the central limit 
-theorem, the sample $\overline X$ is distributed 
+$|V|$ and edges $|E|$ of $G$, and builds a new random graph with the same number 
+of vertex and edges. The clustering coefficient is then computed for each graph 
+in the sequence $\langle G_{ER} \rangle$ as $\langle x_{ER} \rangle$.
+The switching model also produces a sequence of graphs $\langle G_S \rangle$ and 
+the measurements $\langle x_S \rangle$.
 
 \subsection{Erdös--Rényi model}
 
@@ -108,11 +101,23 @@ taken by calling \texttt{average\_clustering}.
 	\caption{The measures of ER model.}
 	\label{tab:er}
 \end{table}
-%
-We see that none of the generated graphs contain a value greater that the 
+
+We see that none of the generated graphs contain a value greater than the 
 original one. We can conclude that, even the ER model keeps the number of nodes 
 and edges, the clustering coefficient is smaller.
 
+\subsection{Switching model}
+
+This model is implemented in the R package BiRewire\cite{birewire} written by A.  
+Gobbi, a fast implementation of the switching model \cite{gobbi14} 
+\cite{gobbi17} with especial design for large graphs. The algorithm switches two 
+edges while the degree distribution is kept. Given two edges $(u,v),(s,t)$, with 
+all different vertex, the switches $(u,t), (s,v)$ and $(u,s), (v,t)$ are 
+randomly performed, when no loops or multi-edges are introduced. A total of $T = 
+25$ graphs are generated, starting with the graph for each language, and with a 
+number of steps equal to $Q = |E|\log|E|$.  The clustering coefficient is 
+computed by the function \texttt{transitivity(g, type='localaverage', 
+isolates='zero')} and tabulated for each language in table~\ref{tab:switch}.
 %
 \begin{table}[h]
 	\centering
@@ -123,13 +128,32 @@ and edges, the clustering coefficient is smaller.
 %
 \section{Results}
 
-
+In the ER model, the clustering coefficient is always smaller compared to the 
+original graph. However, using the switching model the measures are similar, but 
+sometimes still small.
 
 \section{Discussion}
 
+I don't know what is the effect of the model in the clustering coefficient, nor 
+by what means can I learn that relation. Neither I understand the utility of 
+especulating about such relation, at least without the ability of designing a 
+posterior test of my hypothesis.
+
 \section{Methods}
 
+To avoid the low speed of the computation, I tested with some libraries that 
+implement a efficient representation of the graph, and I found the BiRewire to 
+be acceptable and simple. Also the \texttt{networkx} package has a very good 
+documentation, and implements a lot of random generators, including the ER 
+model.
 
+I decided not to optimize anything without a good reason to do it\footnote{``The 
+real problem is that programmers have spent far too much time worrying about 
+efficiency in the wrong places and at the wrong times; premature optimization is 
+the root of all evil (or at least most of it) in programming''-- Donald Knuth}; 
+i.e.  after a thorough analysis. As the computation time was not too large, I 
+avoided the selection of some advanced data structure to perform the 
+computations.
 
 \bibliographystyle{unsrt}
 \bibliography{biblio}
