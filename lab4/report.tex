@@ -1,0 +1,208 @@
+\documentclass[a4paper]{article}
+%\usepackage{amsfonts}
+%\usepackage{amsmath}
+%\usepackage{amsthm}
+\usepackage[utf8]{inputenc}
+%\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+%\usepackage{subfig}
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\usepackage{siunitx}
+%\sisetup{retain-zero-exponent=true}%
+\usepackage{minted}
+\newminted{py}{%
+%		linenos,
+		fontsize=\small,
+		tabsize=2,
+		mathescape,
+}
+\newminted{text}{%
+%		linenos,
+		fontsize=\small,
+		tabsize=2,
+		mathescape,
+}
+
+\title{Lab 4: Non-linear regression on dependency trees}
+\author{Rodrigo Arias Mallo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+A list of datasets with information of syntactic dependency trees are used in 
+this report to derive conclusions about the relation of a metric and the size of 
+the sentence $n$.
+
+\subsection{Selection of the metric}
+For selecting the metric, I built a small python program, that receives as input 
+a list of elements, and a number. The program concatenate the list and the 
+number by using \texttt{;} as separator, and a MD5 hash is computed over the 
+resulting string. Finally, an element of the list is chosen by using the first 
+byte of the hexadecimal hash, converted to a index modulus the size of the list.  
+Then the item with the corresponding index is selected.
+
+The last digit of my identification number is used as the input number, so the 
+output is unique for me.
+%
+\begin{textcode}
+% python choice.py 64718
+degree 2nd moment
+\end{textcode}
+%
+Finally the chosen metric is the degree 2nd moment $\langle k^2 \rangle$.
+
+\section{Results}
+
+All the analysis has been made in python, by using numeric and statistical 
+packages. The datasets were read and the test
+$$4-6/n \le \langle k^2 \rangle \le n-1$$
+was failed in some elements, because the rounding errors. After allowing a small 
+error $\epsilon = \num{5e-6}$ the test
+$$4-6/n - \epsilon \le \langle k^2 \rangle \le n-1 + \epsilon$$
+was succesfully passed in all languages.
+
+\subsection{Summary}
+In the table~\ref{tab:1} a summary of the properties of the degree sequences is 
+shown. The sample mean and standard deviation of the metric $x$ are represented 
+by $\overline x$ and $s_x$ respectively.
+%
+\begin{table}[h]
+	\centering
+	\input{table1.tex}
+	\caption{The measures of the datasets.}
+	\label{tab:1}
+\end{table}
+%
+
+\subsection{Models}
+
+The models tested are presented in the table~\ref{tab:models}. The model 0 is 
+used as reference, and has no parameters.
+%
+\begin{table}[h]
+	\centering
+	\begin{tabular}{cll}
+		\toprule
+		Model & Function & Parameters\\
+		\midrule
+		0  & $f(n) = (1-1/n)(5-6/n)$	& \\
+		1  & $f(n) = (n/2)^b$					& $b$ \\
+		2  & $f(n) = an^b$ 						& $a,b$\\
+		3  & $f(n) = ae^{cn}$					& $a,c$\\
+		4  & $f(n) = a\log n$					& $a$\\
+		5  & $f(n) = an^be^{cn}$			& $a,b,c$\\
+		1+ & $f(n) = (n/2)^b + d$			& $b,d$\\
+		2+ & $f(n) = an^b + d$				& $a,b,d$\\
+		3+ & $f(n) = ae^{cn} + d$			& $a,c,d$\\
+		4+ & $f(n) = a\log n + d$			& $a,d$\\
+		5+ & $f(n) = an^be^{cn} + d$	& $a,b,c,d$\\
+		\bottomrule
+	\end{tabular}
+	\caption{The list of models to test.}
+	\label{tab:models}
+\end{table}
+%
+
+\subsection{Non-linear regression}
+
+The proposed R function \texttt{nls} is the abreviature of Nonlinear 
+Least-Squares. The basic procedure is to modify the parameters of the model in 
+order to reduce the sum of the square distance between the data points and the 
+predicted points of the model.
+
+This function is available in the python package \texttt{scipy.optimize} as 
+\texttt{least\_squares}. However the wrap function \texttt{curve\_fit} let us 
+use it more easilly, and is what has been used in order to fit the models.
+
+The initial parameters are set by default to 1. Except in models 2+ and 3+ which 
+had been modified a bit, but with no luck. The default parameters are defined in 
+the model function:
+%
+\begin{pycode}
+def m2d(n, a=0.06, b=0.8, d=1):   return a*n**b + d
+def m3d(n, a=-1, c=-0.05, d=13):  return a*np.exp(c*n) + d
+\end{pycode}
+%
+Some models can't find a optimum value and a exception is returned. In this case 
+a second attempt is made, in order to find better parameters for the model. The 
+function \texttt{differential\_evolution} let us use an evolutionary algorithm 
+to find values where the least-squares fails. It takes a bit more, but almost 
+always improves the parameters.
+
+In the tables~\ref{tab:AIC1} and~\ref{tab:AIC2} the difference AIC metric is 
+shown, with respect to the best model in each case. Note that the metric can be 
+affected by the value of the outliers if we use the aggregate mean, so the full 
+dataset is used to get the best parameters.
+%
+\begin{table}[h]
+	\centering
+	\input{tableAIC1.tex}
+	\caption{The $\Delta AIC$ of the first models.}
+	\label{tab:AIC1}
+\end{table}
+%
+\begin{table}[h]
+	\centering
+	\input{tableAIC2.tex}
+	\caption{The $\Delta AIC$ of the models with a constant parameter.}
+	\label{tab:AIC2}
+\end{table}
+%
+We see that the model 5+ seems to better fit the data, followed by the 2+ model.
+
+\section{Plots of the models}
+
+The best model has been selected to be plotted along with the reference model 0, 
+and the aggregate mean data points. The logarithmic scale is enabled in both 
+axis.
+
+%\begin{center}
+\noindent
+\includegraphics[width=.5\textwidth]{fig/Arabic-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Basque-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Catalan-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Chinese-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Czech-mean.png}
+\includegraphics[width=.5\textwidth]{fig/English-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Greek-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Hungarian-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Italian-mean.png}
+\includegraphics[width=.5\textwidth]{fig/Turkish-mean.png}
+%\end{center}
+
+
+\subsection{Model parameters}
+TBD: Fix second table of parameters.
+%
+\begin{table}[h]
+	\centering
+	\input{table_param1.tex}
+	\caption{The models parameters.}
+	\label{tab:params1}
+\end{table}
+%
+%
+\begin{table}[h]
+	\centering
+	\input{table_param2.tex}
+	\caption{The models parameters.}
+	\label{tab:params2}
+\end{table}
+%
+
+
+\section{Results}
+
+\section{Discussion}
+
+\section{Methods}
+
+%\bibliographystyle{unsrt}
+%\bibliography{biblio}
+
+\end{document}
