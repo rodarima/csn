@@ -268,12 +268,12 @@ def main():
 	tableAIC1 = table_AIC(all_results, models1)
 	headersAIC1 = ['Language'] + models1
 	tableAIC1_tex = get_table_latex(tableAIC1, headersAIC1)
-	save_latex(tableAIC1_tex, 'tableAIC1.tex')
+	save_latex(tableAIC1_tex, 'tables/tableAIC1.tex')
 
 	tableAIC2 = table_AIC(all_results, models2)
 	headersAIC2 = ['Language'] + models2
 	tableAIC2_tex = get_table_latex(tableAIC2, headersAIC2)
-	save_latex(tableAIC2_tex, 'tableAIC2.tex')
+	save_latex(tableAIC2_tex, 'tables/tableAIC2.tex')
 
 	# Create param table
 	modelsA = models_name[:6]
@@ -296,9 +296,9 @@ def main():
 	table_param_tex2 = get_table_latex(table_param2, headers_param2, fmt_param)
 	table_param_tex3 = get_table_latex(table_param3, headers_param3, fmt_param)
 
-	save_latex(table_param_tex1, 'table_param1.tex')
-	save_latex(table_param_tex2, 'table_param2.tex')
-	save_latex(table_param_tex3, 'table_param3.tex')
+	save_latex(table_param_tex1, 'tables/table_param1.tex')
+	save_latex(table_param_tex2, 'tables/table_param2.tex')
+	save_latex(table_param_tex3, 'tables/table_param3.tex')
 
 
 

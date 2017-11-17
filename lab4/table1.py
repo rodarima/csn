@@ -7,7 +7,7 @@ NUM_FMT = '.3f'
 EPSILON = 5e-6 # Avoid low precision round error in the tests
 
 DATA = 'data/{}_dependency_tree_metrics.txt'
-TEX = 'table1.tex'
+TEX = 'tables/table1.tex'
 
 with open(LANG_FILE, 'r') as f:
 	LANGS = [e.strip() for e in f.readlines()]
