@@ -1,0 +1,7 @@
+_minted-report
+__pycache__
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out

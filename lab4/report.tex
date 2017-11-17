@@ -109,48 +109,18 @@ used as reference, and has no parameters.
 %
 
 \subsection{Non-linear regression}
-
-The proposed R function \texttt{nls} is the abreviature of Nonlinear 
-Least-Squares. The basic procedure is to modify the parameters of the model in 
-order to reduce the sum of the square distance between the data points and the 
-predicted points of the model.
-
-This function is available in the python package \texttt{scipy.optimize} as 
-\texttt{least\_squares}. However the wrap function \texttt{curve\_fit} let us 
-use it more easilly, and is what has been used in order to fit the models.
-
-The initial parameters are set by default to 1. Except in models 2+ and 3+ which 
-had been modified a bit, but with no luck. The default parameters are defined in 
-the model function:
 %
-\begin{pycode}
-def m2d(n, a=0.06, b=0.8, d=1):   return a*n**b + d
-def m3d(n, a=-1, c=-0.05, d=13):  return a*np.exp(c*n) + d
-\end{pycode}
+In the table~\ref{tab:AIC} the difference AIC metric is shown, with respect to 
+the best model in each case. Note that the metric can be affected by the value 
+of the outliers if we use the aggregate mean, so the full dataset is used to get 
+the best parameters.
 %
-Some models can't find a optimum value and a exception is returned. In this case 
-a second attempt is made, in order to find better parameters for the model. The 
-function \texttt{differential\_evolution} let us use an evolutionary algorithm 
-to find values where the least-squares fails. It takes a bit more, but almost 
-always improves the parameters.
-
-In the tables~\ref{tab:AIC1} and~\ref{tab:AIC2} the difference AIC metric is 
-shown, with respect to the best model in each case. Note that the metric can be 
-affected by the value of the outliers if we use the aggregate mean, so the full 
-dataset is used to get the best parameters.
-%
-\begin{table}[h]
+\begin{table}[H]
 	\centering
 	\input{tableAIC1.tex}
-	\caption{The $\Delta AIC$ of the first models.}
-	\label{tab:AIC1}
-\end{table}
-%
-\begin{table}[h]
-	\centering
 	\input{tableAIC2.tex}
-	\caption{The $\Delta AIC$ of the models with a constant parameter.}
-	\label{tab:AIC2}
+	\caption{The $\Delta AIC$ of the models.}
+	\label{tab:AIC}
 \end{table}
 %
 We see that the model 5+ seems to better fit the data, followed by the 2+ model.
@@ -175,34 +145,83 @@ axis.
 \includegraphics[width=.5\textwidth]{fig/Turkish-mean.png}
 %\end{center}
 
-
 \subsection{Model parameters}
-TBD: Fix second table of parameters.
+The best model parameters are shown in the table~\ref{tab:params}. Each column 
+is one parameter of the model, named $m\, p$ where $m$ is the model name and $p$ 
+the parameter name.
 %
 \begin{table}[h]
 	\centering
+	\footnotesize
 	\input{table_param1.tex}
-	\caption{The models parameters.}
-	\label{tab:params1}
-\end{table}
-%
-%
-\begin{table}[h]
-	\centering
 	\input{table_param2.tex}
+	\input{table_param3.tex}
 	\caption{The models parameters.}
-	\label{tab:params2}
+	\label{tab:params}
 \end{table}
 %
-
-
-\section{Results}
-
-\section{Discussion}
-
 \section{Methods}
+%
+% Methods should include any relevant methods not explained in this guide (for
+% instance, decisions that you had to made and might have an influence on the
+% results), initial values of the parameters used to call nls(), the techniques
+% used to obtain those initial values and so on...
+%
+The proposed R function \texttt{nls} is the abreviature of Nonlinear 
+Least-Squares. The basic procedure is to modify the parameters of the model in 
+order to reduce the sum of the square distance between the data points and the 
+predicted points of the model.
+%
+This function is available in the python package \texttt{scipy.optimize} as 
+\texttt{least\_squares}. However the wrap function \texttt{curve\_fit} let us 
+use it more easily, and is what has been used in order to fit the models.
 
-%\bibliographystyle{unsrt}
-%\bibliography{biblio}
+The initial parameters are set by default to 1. Except in models 2+ and 3+ which 
+had been modified a bit, but with no luck. The default parameters are defined in 
+the model function:
+%
+\begin{pycode}
+def m2d(n, a=0.06, b=0.8, d=1):   return a*n**b + d
+def m3d(n, a=-1, c=-0.05, d=13):  return a*np.exp(c*n) + d
+\end{pycode}
+%
+Some models can't find a optimum value and a exception is returned. In this case 
+a second attempt is made, in order to find better parameters for the model. The 
+function \texttt{differential\_evolution} let us use an evolutionary algorithm 
+to find values where the least-squares fails. It takes a bit more, but almost 
+always improves the parameters. For more details see \texttt{fit.py}.
+%
+\section{Discussion}
+%
+% The discussion should include a summary of the results and your
+% interpretation. For instance, you should discuss
+%
+% - If there is a significance difference between the fit of the functions from 
+%   null hypotheses and that of alternative hypotheses.
+%
+% - If the original data satisfy the assumption of homoscedasticity of the non-
+%   linear regression methods considered here. In case that it does not hold,
+%   you should explain how you have addressed it.
+%
+% - Discuss if the function giving the best fit gives a reasonably good fit
+%   (e.g., checking visually that the best function provides a sufficiently good
+%   fit).  Remember that the best function of an ensemble is not necessarily
+%   the best in absolute terms.
+%
+% - The extent to which languages resemble or differ.
+%
+% The discussion section should also include some conclusions.
+%
+We see that the reference model 0 is not a very good predictor of the data. As 
+$n$ increases the distance from the mean and the predicted value is bigger. The 
+best model seems to be the model 5+, which is the one with the best AIC overall.
+%
+Homoscedasticity was not tested in any way, only visually looked.
+%
+By looking at all the models the selected one matches with the one that 
+graphically appears to better fit the data.
+%
+We conclude that the mean metric can be successfully predicted by the nonlinear 
+regression model 5+.
 
 \end{document}
