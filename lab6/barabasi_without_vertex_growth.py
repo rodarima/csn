@@ -1,7 +1,8 @@
 from igraph import *
+import numpy as np
 import random
 
-FILE = "data/without_vertex_growth.txt"
+DIRECTORY = 'DATA/model3_'
 
 tmax = 10000
 
@@ -24,5 +25,11 @@ G = Graph(tmax)
 for t_i in output_t_i:
     print(str(t_i) + " step")
     G = ba_generation(G, t_i+1)
-    with open(str(t_i) + "_" + FILE, 'w') as f:
+    with open(DIRECTORY + 'at_' + str(t_i) + '.edges', 'w') as f:
         G.write_edgelist(f)
+
+
+np.savetxt(DIRECTORY + 'hist_degree.txt',
+            np.array(list(G.degree_distribution().bins()))[:,[0,2]],
+            fmt="%d"
+)
