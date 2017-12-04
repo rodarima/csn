@@ -1,7 +1,7 @@
 from igraph import *
 import random
 
-FILE = "data/ti_without_vertex_growth_albert.data"
+FILE = "data/without_vertex_growth.txt"
 
 tmax = 10000
 

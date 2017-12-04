@@ -1,7 +1,7 @@
 from igraph import *
 import random
 
-FILE = "data/ti_albert.data"
+FILE = "data/without_preferential_attachment.data"
 
 tmax = 10000
 
