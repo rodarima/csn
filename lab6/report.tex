@@ -121,21 +121,11 @@ distribution for each model. The vertex degree was measured over the time for $t
 = 1, 10, 100, 1000, 10000$ successively.
 
 We used python for generating the models, to store the results and to analyze 
-the data.
-
-The files can be found in directory \textit{data}.
-
-The degree sequence for each models are stored in the files 
-\textit{model\textbf{i}\_hist\_degree.txt} where \textbf{i} is equal to 1 for 
-B-A model, 2 for B-A without preferential attachment, 3 for B-A without vertex 
-growth.
-
-The \textit{model\textbf{i}\_tis\_degree.txt} files contains the degree for each 
-vertices at time $t_i$ where \textbf{i} is the same as explained previously. 
-This file as 3 columns: first column is the vertex index, second column is the 
-degree of this vertex, last column is at which $t_i$ we collected this data. 
-Therefore those \textit{model\textbf{i}\_tis\_degree.txt} files contain all the 
-data for all the iterations of $t$.
+the data. For each BA model $M$ a folder in \texttt{data/model$M$/} contains all 
+the results produced from this model. Inside, the degree sequence is stored in 
+the file \texttt{dseq.txt}, the degree distribution in \texttt{dd.txt} and for 
+each $T$ in the arrival time, we produced \texttt{dt\_$T$.txt} tracing the 
+degree of the vertex arriving at time $T$.
 
 
 \end{document}
