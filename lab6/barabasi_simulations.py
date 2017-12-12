@@ -2,7 +2,9 @@ from igraph import *
 import pandas as pd
 import numpy as np
 import random
+import time
 
+RUNS = 10
 VERBOSE = 0
 TMAX_POWER = 4
 tmax = 10**TMAX_POWER
@@ -13,13 +15,13 @@ np.random.seed(1)
 data_dir = 'data/'
 
 # dd means degree distribution
-data_dd_fmt = 'model{}/dd.txt'
+data_dd_fmt = 'model{}/dd_r{}.txt'
 
 # dseq means degree sequence
-data_dseq_fmt = 'model{}/dseq.txt'
+data_dseq_fmt = 'model{}/dseq_r{}.txt'
 
 # dt means degree over time
-data_dt_fmt = 'model{}/dt{}.txt'
+data_dt_fmt = 'model{}/dt{}_r{}.txt'
 
 def model1(G, steps, m0=1):
 	V = G.vcount()
@@ -71,7 +73,7 @@ def next_step(model, G, t, tracing):
 			t, G.vcount(), G.ecount()))
 
 	# If we just passed some time_trace[i], add a new tracing vertex
-	if t in arrival_times:
+	if t in arrival_times and t < G.vcount():
 		# The added vertex should have index = t
 		if VERBOSE:
 			print('Adding vertex {} to the tracing vertices'.format(t))
@@ -89,21 +91,21 @@ def next_step(model, G, t, tracing):
 
 	return G
 
-def save_tracing(name, tracing):
+def save_tracing(name, tracing, r):
 	for v in tracing.keys():
-		fn = data_dir + data_dt_fmt.format(name, v)
+		fn = data_dir + data_dt_fmt.format(name, v, r)
 		table = np.array(tracing[v])
 		np.savetxt(fn, table, fmt="%d")
 
-def save_dd(name, dd):
-	fn = data_dir + data_dd_fmt.format(name)
+def save_dd(name, dd, r):
+	fn = data_dir + data_dd_fmt.format(name, r)
 	np.savetxt(fn, dd, fmt="%d")
 
-def save_dseq(name, dseq):
-	fn = data_dir + data_dseq_fmt.format(name)
+def save_dseq(name, dseq, r):
+	fn = data_dir + data_dseq_fmt.format(name, r)
 	np.savetxt(fn, dseq, fmt="%d")
 
-def simulate_model(m, G0):
+def simulate_model(m, G0, r):
 	model = models[m]
 	name = str(m + 1)
 	print('Simulating model {} up to tmax = {}'.format(name, tmax))
@@ -123,15 +125,24 @@ def simulate_model(m, G0):
 	dseq = np.array([G.vs.indices, G.degree()]).T
 
 	# Save metrics
-	save_tracing(name, tracing)
-	save_dd(name, dd)
-	save_dseq(name, dseq)
+	save_tracing(name, tracing, r)
+	save_dd(name, dd, r)
+	save_dseq(name, dseq, r)
 	
-
-def main():
+def run(r):
+	print("::Starting running {} of {}".format(r, RUNS))
+	tic = time.clock()
 	G0 = [Graph(1), Graph(1), Graph(tmax)]
 	for m in range(len(models)):
-		simulate_model(m, G0[m])
+		simulate_model(m, G0[m], r)
+	toc = time.clock()
+	elapsed = toc - tic
+	print("::Elapsed time for run {} was {:.3f} s".format(r, elapsed))
+	print()
+
+def main():
+	for r in range(RUNS):
+		run(r)
 
 if __name__ == '__main__':
 	main()
