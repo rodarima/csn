@@ -4,11 +4,15 @@ import numpy as np
 import random
 import time
 
+# FIXME: Place the other models here also
+# Note: index from 0 is used; 2 means model3
+RUN_MODELS = [2]
 RUNS = 10
 VERBOSE = 0
 TMAX_POWER = 4
 tmax = 10**TMAX_POWER
 arrival_times = 10 ** np.arange(4)
+MODEL3_N0 = int(tmax / 5)
 
 np.random.seed(1)
 
@@ -22,6 +26,7 @@ data_dseq_fmt = 'model{}/dseq_r{}.txt'
 
 # dt means degree over time
 data_dt_fmt = 'model{}/dt{}_r{}.txt'
+
 
 def model1(G, steps, m0=1):
 	V = G.vcount()
@@ -50,15 +55,25 @@ def model3(G, steps, m0=1):
 		V = G.vcount()
 		print('Running model 3 from E={} to E={}, V={}'.format(E, E+steps*m0, V))
 	for i in range(steps):
-		# Don't use replacement to avoid loops/multiedges
-		selection = np.random.choice(G.vs, [m0+1], replace=False)
+		# Preferential attachment
+		if np.sum(G.degree()) != 0:
+			p = np.array(G.degree()) / np.sum(G.degree())
+			# Don't use replacement to avoid loops/multiedges
+			targets = np.random.choice(G.vs, [m0], replace=False, p=p)
+		else:
+			# Don't use replacement to avoid loops/multiedges
+			targets = np.random.choice(G.vs, [m0], replace=False)
+
+		selected = np.random.choice(G.vs, 1)
+		while selected in targets:
+			selected = np.random.choice(G.vs, 1)
 		
-		# Extract one vertex as the one to be connected
-		selected = [selection[0]] * m0
-		targets = selection[1:]
+		# Expand selected to form edges
+		selected = np.repeat(selected, m0)
+		connections = list(zip(selected, targets))
 
 		# Connect
-		G.add_edges(list(zip(selected, targets)))
+		G.add_edges(connections)
 
 	return G
 
@@ -132,8 +147,8 @@ def simulate_model(m, G0, r):
 def run(r):
 	print("::Starting running {} of {}".format(r, RUNS))
 	tic = time.clock()
-	G0 = [Graph(1), Graph(1), Graph(tmax)]
-	for m in range(len(models)):
+	G0 = [Graph(1), Graph(1), Graph(MODEL3_N0)]
+	for m in RUN_MODELS:
 		simulate_model(m, G0[m], r)
 	toc = time.clock()
 	elapsed = toc - tic
