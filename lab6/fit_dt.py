@@ -12,6 +12,8 @@ from fitcore import *
 
 # Reproducible runs
 np.random.seed(1)
+VERBOSE = 0
+FIT_MEAN = True
 
 
 # Model functions
@@ -64,35 +66,65 @@ def sort_data(data):
 
 
 data_dir = 'data/'
-dataset_fmt = 'model{}/dt1.txt'
+fig_dir = 'fig/'
+table_dir = 'table/'
+runs = 10
+tracing_fn = data_dir + 'tracing_vertices.txt'
+dataset_fmt = 'model{}/dt{}_r{}.txt'
 
 N_DATASETS = 3
 
-fits = []
+def aggregate_mean(data):
+	df = pd.DataFrame(data, columns=('x', 'y'))
+	ndf = df.groupby(['x']).mean()
+	new_data = np.array([ndf.index, ndf['y']]).T
+	return new_data
 
-for i in range(1, N_DATASETS+1):
-	name = '{}'.format(i)
-	fn = data_dir + dataset_fmt.format(i)
-	data = np.genfromtxt(fn, delimiter=' ')
-	#data = np.log(data)
-	#data = data[np.isfinite(data[:,0])]
-	#data = data[np.isfinite(data[:,1])]
-	#deg_sum = np.sum(data[:, 1])
-	#data[:,1] /= deg_sum
-	data = sort_data(data)
-	fits.append(Fit(name, data, models))
+def fit_vertex(v):
+	print(':: Fitting models for vertex {}'.format(v))
+	fits = []
+	for m in range(1, N_DATASETS+1):
+		name = '{}'.format(m)
+		data = None
+		for r in range(runs):
+			fn = data_dir + dataset_fmt.format(m, v, r)
+			print('Reading {}'.format(fn))
+			run_data = np.genfromtxt(fn, delimiter=' ')
+			#data = np.log(data)
+			#data = data[np.isfinite(data[:,0])]
+			#data = data[np.isfinite(data[:,1])]
+			#deg_sum = np.sum(data[:, 1])
+			#data[:,1] /= deg_sum
+			#data = sort_data(data)
+			if not data is None: data = np.append(data, run_data, axis=0)
+			else: data = run_data
+	
+		if FIT_MEAN:
+			data = aggregate_mean(data)
 
-table = TeXTable(fits)
-table1 = table.diff_measure('AIC', ' ', transpose=True)
+		print('Fitting generation model {}'.format(name))
+		fits.append(Fit(name, data, models, verbose=VERBOSE))
 
-#print(table1)
-table.save(table1, 'tableAIC.tex')
+	table = TeXTable(fits)
+	table1 = table.diff_measure('AIC', ' ', transpose=True)
 
-fig_dir = 'fig/'
-fig_fmt = 'model{}_dt1_comparison.png'
+	#print(table1)
+	table.save(table1, table_dir + 'AIC_dt{}.tex'.format(v))
 
-for fit in fits:
-	pf = PlotFit(fit)
-	fn = fig_dir + fig_fmt.format(fit.name)
-	pf.comparison('AIC', 'Comparison AIC model {}'.format(fit.name),
-		fn, xlabel='$n$', ylabel='$k$')
+	# We use all_dti.png to distinguish between the best_dti.png
+	fig_fmt = 'model{}/all_dt{}.png'
+
+	for fit in fits:
+		pf = PlotFit(fit)
+		fig_fn = fig_dir + fig_fmt.format(fit.name, v)
+		pf.comparison('AIC', 'Generation model {}. All fit models for vertex {}'.format(
+			fit.name, v), fig_fn, xlabel='$t$', ylabel='$k$', mean=False)
+
+def main():
+	# Read the tracing vertex indices
+	tracing_vertices = np.genfromtxt(tracing_fn, dtype='int')
+
+	for v in tracing_vertices:
+		fit_vertex(v)
+
+main()

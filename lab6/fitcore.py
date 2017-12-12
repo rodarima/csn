@@ -1,5 +1,6 @@
 import inspect, re
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import differential_evolution, curve_fit
 from itertools import cycle
@@ -66,7 +67,7 @@ class Model:
 		return self.fitted_data
 
 class Fit:
-	def __init__(self, name, data, models):
+	def __init__(self, name, data, models, verbose=0):
 		assert(len(data.shape) == 2)
 		assert(data.shape[1] == 2)
 		self.name = name
@@ -76,7 +77,7 @@ class Fit:
 		self.n = data.shape[0]
 		self.models = []
 		self.seed = 1
-		self.verbose = 2
+		self.verbose = verbose
 		self.loss = 'soft_l1'
 		self.models = [m() for m in models]
 
@@ -212,10 +213,20 @@ class PlotFit:
 		plt.plot(x, yy, style, label='{} {} = {:.2f}'.format(
 			model.get_name(), measure, m))
 
-	def plot_data(self):
-		x = self.fit.x
-		y = self.fit.y
+	def aggregate_mean(self, data):
+		df = pd.DataFrame(data, columns=('x', 'y'))
+		ndf = df.groupby(['x']).mean()
+		new_data = np.array([ndf.index, ndf['y']]).T
+		return new_data
+
+	def plot_data(self, mean=False):
+		data = self.fit.data
+
+		if mean: data = self.aggregate_mean(data)
 		
+		x = data[:,0]
+		y = data[:,1]
+
 		plt.plot(x, y, 'b.', label='data')
 
 	def scale_to_data(self):
@@ -225,8 +236,11 @@ class PlotFit:
 		plt.ylim((.9 * np.min(y), np.max(y) * 1.1))
 		plt.xlim((.9 * np.min(x), np.max(x) * 1.1))
 
-	def comparison(self, measure, title, fn, xlabel='', ylabel=''):
-		plt.figure(figsize=(5, 4))
+	def comparison(self, measure, title, fn, xlabel='', ylabel='', mean=False):
+		plt.figure(figsize=(8, 6))
+
+		# Plot the data before the models
+		self.plot_data(mean)
 
 		lines = ["-","--","-.",":"]
 		linecycler = cycle(lines)
@@ -236,7 +250,7 @@ class PlotFit:
 			self.plot_model(model, measure, style)
 
 		# Plot the data after the models
-		self.plot_data()
+		#self.plot_data(mean)
 
 		plt.title(title)
 		plt.xlabel(xlabel)
