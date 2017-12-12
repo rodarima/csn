@@ -76,7 +76,7 @@ class Fit:
 		self.n = data.shape[0]
 		self.models = []
 		self.seed = 1
-		self.verbose = 1
+		self.verbose = 2
 		self.loss = 'soft_l1'
 		self.models = [m() for m in models]
 
@@ -198,8 +198,63 @@ class TeXTable:
 		with open(fn, 'w') as f:
 			f.write(s)
 
+class PlotFit:
+
+	def __init__(self, fit):
+		self.fit = fit
+
+	def plot_model(self, model, measure, style):
+		# Already computed
+		x = self.fit.x
+		yy = model.fitted_data
+		m = model.measures[measure]
+		
+		plt.plot(x, yy, style, label='{} {} = {:.2f}'.format(
+			model.get_name(), measure, m))
+
+	def plot_data(self):
+		x = self.fit.x
+		y = self.fit.y
+		
+		plt.plot(x, y, 'b.', label='data')
+
+	def scale_to_data(self):
+		x = self.fit.x
+		y = self.fit.y
+
+		plt.ylim((.9 * np.min(y), np.max(y) * 1.1))
+		plt.xlim((.9 * np.min(x), np.max(x) * 1.1))
+
+	def comparison(self, measure, title, fn, xlabel='', ylabel=''):
+		plt.figure(figsize=(5, 4))
+
+		lines = ["-","--","-.",":"]
+		linecycler = cycle(lines)
+
+		for model in self.fit.models:
+			style = next(linecycler)
+			self.plot_model(model, measure, style)
+
+		# Plot the data after the models
+		self.plot_data()
+
+		plt.title(title)
+		plt.xlabel(xlabel)
+		plt.ylabel(ylabel)
+		#plt.xscale('log')
+		#plt.yscale('log')
+
+		self.scale_to_data()
+
+		plt.legend()
+		plt.savefig(fn, bbox_inches='tight')
+		plt.close()
+
 
 if __name__ == '__main__':
+	def sort_data(data):
+		ind = np.argsort(data[:,0])
+		return data[ind]
 	# Test
 	class Model_0(Model):
 		def func(self, n, a):
@@ -213,6 +268,9 @@ if __name__ == '__main__':
 	dataA = np.random.random_sample([100, 2])
 	dataB = np.random.random_sample([100, 2])
 
+	dataA = sort_data(dataA)
+	dataB = sort_data(dataB)
+
 	models = [Model_0, Model_1]
 	fits = [Fit('A', dataA, models), Fit('B', dataB, models)]
 
@@ -220,4 +278,7 @@ if __name__ == '__main__':
 	table1 = table.diff_measure('AIC', title='Model', transpose=True)
 
 	print(table1)
+
+	pf = PlotFit(fits[0])
+	pf.comparison('AIC', 'AIC', '/tmp/graph.png')
 
