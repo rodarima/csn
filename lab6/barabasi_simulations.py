@@ -55,19 +55,32 @@ def model3(G, steps, m0=1):
 		V = G.vcount()
 		print('Running model 3 from E={} to E={}, V={}'.format(E, E+steps*m0, V))
 	for i in range(steps):
-		# Preferential attachment
-		if np.sum(G.degree()) != 0:
-			p = np.array(G.degree()) / np.sum(G.degree())
-			# Don't use replacement to avoid loops/multiedges
-			targets = np.random.choice(G.vs, [m0], replace=False, p=p)
-		else:
-			# Don't use replacement to avoid loops/multiedges
-			targets = np.random.choice(G.vs, [m0], replace=False)
 
-		selected = np.random.choice(G.vs, 1)
-		while selected in targets:
-			selected = np.random.choice(G.vs, 1)
+		# Select a vertex uniformly random
+		selected = np.random.choice(G.vs)
+
+		p = None
+		# Compute probabilities iff we have more than 1 vertices connected
+		if np.sum(G.degree()) != 0:
+
+			dd = np.array(G.degree())
+			denomA = np.sum(dd)
+			denomB = np.sum(dd == 0)
+			numerator = dd + (dd==0)
+
+			p = numerator/(denomA + denomB)
+
 		
+		targets = set()
+		for t in range(m0):
+			target = np.random.choice(G.vs, replace=False, p=p)
+			while target in selected.neighbors() and target in targets:
+				print('Iterating on target selection')
+				target = np.random.choice(G.vs, replace=False, p=p)
+			targets.add(target)
+
+		targets = list(targets)
+
 		# Expand selected to form edges
 		selected = np.repeat(selected, m0)
 		connections = list(zip(selected, targets))
