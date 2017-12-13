@@ -2,7 +2,7 @@ import inspect, re
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.optimize import differential_evolution, curve_fit
+from scipy.optimize import differential_evolution, curve_fit, minimize
 from itertools import cycle
 from tabulate2 import tabulate
 import warnings
@@ -11,8 +11,13 @@ class Model:
 	bounds = (-15, 14)
 	fitted_params = None
 	fitted_data = None
+	initial_params = 0.0
 
 	def func(*args, **kargs):
+		raise NotImplementedError()
+
+	# Minus log likelihood
+	def mll(*args, **kargs):
 		raise NotImplementedError()
 
 	# Automatically compute param names from args
@@ -25,8 +30,20 @@ class Model:
 			# Skip the self and the first variable x 
 			return all_params[2:]
 
+	def get_initial_params(self, mll=False):
+		#print(inspect.getfullargspec(self.mll).defaults)
+		# We have a global bound specification
+		if mll: f = self.mll
+		else: f = self.func
+		default_params = inspect.getfullargspec(f).defaults
+		if default_params != None and len(default_params) != 0:
+			return list(default_params)
+		else:
+			return [self.initial_params] * self.get_nparams()
+
 	def get_nparams(self):
-		return len(self.get_params())
+		n = len(self.get_params())
+		return n
 
 	def get_bounds(self):
 		# We have a global bound specification
@@ -67,7 +84,7 @@ class Model:
 		return self.fitted_data
 
 class Fit:
-	def __init__(self, name, data, models, verbose=0):
+	def __init__(self, name, data, models, verbose=0, info=None, mle=False):
 		assert(len(data.shape) == 2)
 		assert(data.shape[1] == 2)
 		self.name = name
@@ -75,13 +92,30 @@ class Fit:
 		self.x = data[:, 0]
 		self.y = data[:, 1]
 		self.n = data.shape[0]
-		self.models = []
+		self.models = models
 		self.seed = 1
 		self.verbose = verbose
 		self.loss = 'soft_l1'
-		self.models = [m() for m in models]
+		self.info = info
+		self.use_mle = mle
+
+		# Models should be initialized before, so we can add fine params at the
+		# beginning
+		if info == None:
+			self.models = [m() for m in models]
+		else:
+			self.models = [m(info) for m in models]
+			
 
 		self.fit()
+
+	def fit_model_mle(self, model):
+		x0 = model.get_initial_params(mll = True)
+		#print(x0)
+		results = minimize(model.mll, x0, method='L-BFGS-B',
+			bounds=model.get_bounds(), options={'disp':self.verbose > 2})
+		params = results.x
+		model.fitted_params = params
 
 	def fit_model(self, model):
 		if model.get_nparams() == 0:
@@ -89,6 +123,9 @@ class Fit:
 			return
 
 		warnings.filterwarnings("ignore")
+
+		if self.use_mle:
+			return self.fit_model_mle(model)
 
 		try:
 			# Fit model params
@@ -226,6 +263,8 @@ class PlotFit:
 		
 		x = data[:,0]
 		y = data[:,1]
+		#print('y=')
+		#print(y)
 
 		plt.plot(x, y, 'b.', label='data')
 
@@ -236,7 +275,7 @@ class PlotFit:
 		plt.ylim((.9 * np.min(y), np.max(y) * 1.1))
 		plt.xlim((.9 * np.min(x), np.max(x) * 1.1))
 
-	def comparison(self, measure, title, fn, xlabel='', ylabel='', mean=False):
+	def comparison(self, measure, title, fn, xlabel='', ylabel='', mean=False, log=True):
 		plt.figure(figsize=(8, 6))
 
 		# Plot the data before the models
@@ -255,8 +294,10 @@ class PlotFit:
 		plt.title(title)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
-		#plt.xscale('log')
-		#plt.yscale('log')
+
+		if log:
+			plt.xscale('log')
+			plt.yscale('log')
 
 		self.scale_to_data()
 
