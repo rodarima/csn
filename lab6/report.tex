@@ -30,25 +30,25 @@
 
 \section{Introduction}
 
-In this session, we had to model 3 different models following the dynamical 
-principles of the Barabasi-Albert model. Those principles are: vertex growth and 
-preferential attachment. The different models we needed to implements were the 
+In this session, we had to model 3 different models following the dynamical
+principles of the Barabasi-Albert model. Those principles are: vertex growth and
+preferential attachment. The different models we needed to implements were the
 following:
 
 \begin{itemize}
 	\item Barabasi-Albert with the dynamical principles
-	\item Barabasi-Albert with random attachment instead of preferential 
+	\item Barabasi-Albert with random attachment instead of preferential
 	attachment (only one dynamical principle).
-	\item Barabasi-Albert with vertex growth suppressed (only one dynamical 
+	\item Barabasi-Albert with vertex growth suppressed (only one dynamical
 	principle).
 \end{itemize}
 
-Those models were simulated and the data kept in files so we could analyze 
+Those models were simulated and the data kept in files so we could analyze
 mathematical properties of those models.
 
-In this report we will show our results regarding those models and their 
-analysis. We will discuss those results and explain them. Then we will explain 
-how we implemented the model simulations and what we used to analyze it in the 
+In this report we will show our results regarding those models and their
+analysis. We will discuss those results and explain them. Then we will explain
+how we implemented the model simulations and what we used to analyze it in the
 Methods section.
 
 \section{Results}
@@ -130,11 +130,11 @@ For table \ref{tab:AICdd}, the columns represents the models where respectively:
 
 \subsection{Simulation of the models}
 
-As explained in section Methods, we used $m_0$ and $n_0$ always with the same 
-values (which can be however different for each model). We never compared the 
-models with different $m_0$ or $n_0$ for the same model. It could have indicate 
-us if the model behave differently given different graph in input. We could have 
-went further and do this but we preferred to focus on the analysis of our 
+As explained in section Methods, we used $m_0$ and $n_0$ always with the same
+values (which can be however different for each model). We never compared the
+models with different $m_0$ or $n_0$ for the same model. It could have indicate
+us if the model behave differently given different graph in input. We could have
+went further and do this but we preferred to focus on the analysis of our
 different models with the input specified in the methods section.
 
 \subsection{Barabasi-Albert}
@@ -143,15 +143,15 @@ different models with the input specified in the methods section.
 
 \subsection{Vertex degree over time}
 
-We checked if the power-law dependency with 1/2 exponent gives the best fit to 
-all the time series as required by the statement. This power-law dependency is 
-not the best fit. This power-law is model 1, which has an AIC higher than model 
-2 (see tables \ref{tab:AICdt1} to \ref{tab:AICdt1000}. In fact the best model is 
-model 2, defined as \textbf{$a*{t^b}$}, which is the exponential growth. It 
-makes sense because with one free parameter we can better optimize this model to 
+We checked if the power-law dependency with 1/2 exponent gives the best fit to
+all the time series as required by the statement. This power-law dependency is
+not the best fit. This power-law is model 1, which has an AIC higher than model
+2 (see tables \ref{tab:AICdt1} to \ref{tab:AICdt1000}. In fact the best model is
+model 2, defined as \textbf{$a*{t^b}$}, which is the exponential growth. It
+makes sense because with one free parameter we can better optimize this model to
 fit the data, by adapting b to somewhat close to 1/2 as expected in model 1.
 
-However if we look at table \ref{tab:paramsdt1} to \ref{tab:paramsdt1000}, we 
+However if we look at table \ref{tab:paramsdt1} to \ref{tab:paramsdt1000}, we
 see that $b \approx 0.5$ only for $t_i = 1000$ (table \ref{tab:AICdt1000}).
 
 \subsection{Degree distribution}
@@ -160,6 +160,11 @@ see that $b \approx 0.5$ only for $t_i = 1000$ (table \ref{tab:AICdt1000}).
 
 \subsection{Vertex degree over time}
 
+For table \ref{tab:AICdt1} to \ref{tab:AICdt1000}, best model is as suggested by
+the statement the logarithmic model of the 4\textsuperscript{th} model. Indeed,
+we have 0 as AIC for this model for the vertex degree over time, for every 
+$t_i$ chosen to look at the vertex.
+
 \subsection{Degree distribution}
 
 
@@ -167,76 +172,76 @@ see that $b \approx 0.5$ only for $t_i = 1000$ (table \ref{tab:AICdt1000}).
 
 \subsubsection{Vertex degree over time}
 
-As expected by statement, this model's scaling vertex degree over time should 
-fit a linear scale. By computing the AIC (see tables \ref{tab:AICdt1} to 
-\ref{tab:AICdt1000}) we have seen that the linear model was good. Also, we are 
-really confident by saying it's linear when we look at the plot generated for 
-model3, for every $t_is$. However we find that model0, 0+, 2 and 2+ are the 
-best. Sometimes it's 0(+), sometimes it's 2(+). Model 2 is represented as 
-$at^b$, as b is close to 1 as we can see in tables \ref{tab:AICdt1} to 
+As expected by statement, this model's scaling vertex degree over time should
+fit a linear scale. By computing the AIC (see tables \ref{tab:AICdt1} to
+\ref{tab:AICdt1000}) we have seen that the linear model was good. Also, we are
+really confident by saying it's linear when we look at the plot generated for
+model3, for every $t_is$. However we find that model0, 0+, 2 and 2+ are the
+best. Sometimes it's 0(+), sometimes it's 2(+). Model 2 is represented as
+$at^b$, as b is close to 1 as we can see in tables \ref{tab:AICdt1} to
 \ref{tab:AICdt1000}, which explain this good fit for model 2 and 2+.
 
 \subsubsection{Degree distribution}
 
-As stated by the statement, the degree distribution for this model should be 
-closer to a binomial distribution. Indeed it looks like it, but we found out it 
-looked even more of a displaced poisson with on a different scale. If we took 
-$\lambda = 2$, then we would have a fastly increasing and decreasing poisson 
-which is what we want. However, this Poisson has a mean of $\lambda = 2$. 
+As stated by the statement, the degree distribution for this model should be
+closer to a binomial distribution. Indeed it looks like it, but we found out it
+looked even more of a displaced poisson with on a different scale. If we took
+$\lambda = 2$, then we would have a fastly increasing and decreasing poisson
+which is what we want. However, this Poisson has a mean of $\lambda = 2$.
 Therefore, it does not fit our data which has a mean of approximately 10.
 %TODO VERIFY the mean
-So we displaced the poisson and adjusted the scale. The lasting problem was that 
-due do this scale and displacement, our model never produces data $\approx 0$ 
+So we displaced the poisson and adjusted the scale. The lasting problem was that
+due do this scale and displacement, our model never produces data $\approx 0$
 whereas the generated model data had a lot of values $\approx 0$.
 
-In the end we chose to use a poisson distribution as we did in lab2. It's not a 
-really good fit but it's still the best fit we have. You can see this plot in 
+In the end we chose to use a poisson distribution as we did in lab2. It's not a
+really good fit but it's still the best fit we have. You can see this plot in
 figure
 %TODO ref figure
 
-We also made sure that the distribution giving the best fit in not a power-law, 
-it's looking more of a Gausian one. However since it's not symetric it was hard 
+We also made sure that the distribution giving the best fit in not a power-law,
+it's looking more of a Gausian one. However since it's not symetric it was hard
 to model the data using a normal law, for example.
 
 \section{Methods} \label{methods}
 
-For the default \textit{Barabasi-Albert} and model with random attachment the 
+For the default \textit{Barabasi-Albert} and model with random attachment the
 initial graph was an empty graph with only one vertex.
 
-For the model without vertex growth, we used an unconnected graph with $t_max$ 
-vertices. Because we have no vertex growth, the vertices are not increasing and 
+For the model without vertex growth, we used an unconnected graph with $t_max$
+vertices. Because we have no vertex growth, the vertices are not increasing and
 $n_0$ = $n_tmax$.
 
-For the three models we used $m_0 = 0$ to used "\textit{clean}" and 
+For the three models we used $m_0 = 0$ to used "\textit{clean}" and
 "\textit{empty}" graphs.
 
-We measured the growth of the vertex degree over time and the degree 
-distribution for each model. The vertex degree was measured over the time for 
+We measured the growth of the vertex degree over time and the degree
+distribution for each model. The vertex degree was measured over the time for
 $t_i = 1, 10, 100, 1000, 10000$ successively.
 
-We used python for generating the models, to store the results and to analyze 
-the data. For each BA model $M$ a folder in \texttt{data/model$M$/} contains all 
-the results produced from this model. Inside, the degree sequence is stored in 
-the file \texttt{dseq.txt}, the degree distribution in \texttt{dd.txt} and for 
-each $T$ in the arrival time, we produced \texttt{dt\_$t_i$.txt} tracing the 
+We used python for generating the models, to store the results and to analyze
+the data. For each BA model $M$ a folder in \texttt{data/model$M$/} contains all
+the results produced from this model. Inside, the degree sequence is stored in
+the file \texttt{dseq.txt}, the degree distribution in \texttt{dd.txt} and for
+each $T$ in the arrival time, we produced \texttt{dt\_$t_i$.txt} tracing the
 degree of the vertex arriving at time $t$.
 
 \subsection{Generating model with preferential attachment}
 
-While trying to define how to make the preferential attachment for model 3 we 
-faced a problem. We were choosing from the edges to be linked to our vertex in 
-an array of probability p, with the degree of the node over the sum of the 
+While trying to define how to make the preferential attachment for model 3 we
+faced a problem. We were choosing from the edges to be linked to our vertex in
+an array of probability p, with the degree of the node over the sum of the
 degrees of all nodes as:
 
 \begin{python}
     p[i] = vertex.degree()/sum(graph.all_degrees())
 \end{python}
 
-However, with this, if you had m0 = 5 and only 4 vertices with a degree > 0, 
+However, with this, if you had m0 = 5 and only 4 vertices with a degree > 0,
 then you could not choose your 5 vertices, and it did not work.
 
-What we needed to do is counting stubs instead of degree, with a virtual stub 
-for each unconnected vertex. Therefore our array of probability p was computed 
+What we needed to do is counting stubs instead of degree, with a virtual stub
+for each unconnected vertex. Therefore our array of probability p was computed
 as:
 
 \begin{python}
