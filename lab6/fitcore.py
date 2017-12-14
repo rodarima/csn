@@ -232,6 +232,53 @@ class TeXTable:
 
 		return tex_table
 
+	def _header_compare_param(self, title='Dataset'):
+		fit = self.fits[0]
+		row = [title]
+		for model in fit.models:
+			model_name = model.get_name()
+			for param in model.get_params():
+				row.append('${} {}$'.format(model_name, param))
+
+		return row
+
+	def _table_compare_param(self):
+		table = []
+		for fit in self.fits:
+			name = fit.name
+			row = [name]
+			for model in fit.models:
+				row = row + list(model.fitted_params)
+			table.append(row)
+
+		return table
+
+	def compare_param(self, title='Dataset', fmt='.3f',
+		transpose=False):
+
+		table = self._table_compare_param()
+		headers = self._header_compare_param(title)
+
+		if transpose:
+			new_headers = [title] + [row[0] for row in table]
+			new_table = []
+			for i in range(1, len(table[0])):
+				row = [headers[i]] + [r[i] for r in table]
+				new_table.append(row)
+
+			table = new_table
+			headers = new_headers
+
+		tex_table = tabulate(table, tablefmt="latex_booktabs", floatfmt=fmt,
+			headers=headers)
+
+		tex_table = re.sub('([+-]?[0-9]+\.[0-9]+(E[+-]?[0-9]*)?)', r'\\num{\1}',
+			tex_table)
+
+		tex_table = re.sub(' inf ', r'$\\infty$', tex_table)
+
+		return tex_table
+
 	def save(self, s, fn):
 		with open(fn, 'w') as f:
 			f.write(s)

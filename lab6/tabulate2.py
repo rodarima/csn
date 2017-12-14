@@ -352,7 +352,7 @@ _table_formats = {"simple":
                               linebelow=Line("\\bottomrule\n\\end{tabular}", "", "", ""),
                               #headerrow=_latex_row,
                               headerrow=partial(_latex_row, escrules={}),
-                              datarow=_latex_row,
+                              datarow=partial(_latex_row, escrules={}),
                               padding=1, with_header_hide=None),
                   "tsv":
                   TableFormat(lineabove=None, linebelowheader=None,

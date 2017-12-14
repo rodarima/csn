@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import *
 from itertools import cycle
 from scipy.stats.stats import pearsonr
+from scipy.stats import binom, poisson
 import warnings
 from fitcore import *
 
@@ -26,6 +27,34 @@ class Model1(Model):
 		self.info = info
 	def func(self, k, l):
 		return (l**k * np.exp(-l)) / (factorial(k) * (1 - np.exp(-l)))
+	def mll(self, l):
+		M = self.info['M']
+		N = self.info['N']
+		C = self.info['C']
+		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
+
+class Model1c(Model):
+	bounds = [[3, 6], [-5, -1], [0.1, 0.8]]
+	params = ['\lambda']
+	def __init__(self, info):
+		self.info = info
+	def func(self, k, l=4.0, dx=-3.0, s=0.4):
+		return s * poisson.pmf(k + dx, l)
+	def mll(self, l):
+		M = self.info['M']
+		N = self.info['N']
+		C = self.info['C']
+		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
+
+class Model1b(Model):
+	bounds = [[0.01, 1.0], [2, 50], [0.5, 1], [-0.1, 0.1]]
+	#params = ['\lambda', 'd']
+	def __init__(self, info):
+		self.info = info
+	def func(self, k, p=0.5, n=10, s=1.0, dx=0):
+		#N = self.info['N']
+		return binom.pmf(k, n, p) * s + dx
+		#return s * (l**(k+d) * np.exp(-l)) / (factorial((k+d)) * (1 - np.exp(-l)))
 	def mll(self, l):
 		M = self.info['M']
 		N = self.info['N']
@@ -72,7 +101,7 @@ class Model4(Model):
 
 class Model5(Model):
 	params = ['\gamma', 'k_{\max}']
-	bounds = np.array([[2.0, 3.5], [+100, 130]])
+	bounds = np.array([[1.8, 3.5], [+10, 30]])
 	
 	def __init__(self, info):
 		self.info = info
@@ -84,7 +113,7 @@ class Model5(Model):
 	def func(self, k, g=3.0, kmax=100.0):
 		return k**(-g) / self.rzeta(g, kmax)
 
-	def mll(self, g=2.0, kmax=100.0):
+	def mll(self, g=2.0, kmax=20.0):
 		if type(g) == np.ndarray:
 			kmax = g[1]
 			g = g[0]
@@ -97,7 +126,7 @@ class Model5(Model):
 
 
 models = [Model1, Model2, Model3, Model4, Model5]
-#models = [Model5]
+#models = [Model1c]
 
 def sort_data(data):
 	ind = np.argsort(data[:,0])
@@ -105,6 +134,7 @@ def sort_data(data):
 
 
 fig_dir = 'fig/'
+table_dir = 'table/'
 data_dir = 'data/'
 dataset_fmt = 'model{}/dd_r{}.txt'
 
@@ -180,12 +210,12 @@ def compute_info(data):
 def fit_model(m, models):
 	name = str(m)
 	data, info = prepare_data(m)
-	fit = Fit(name, data, models, verbose=1, info=info, mle=True)
-	#print('BA{}'.format(name))
-	#for i in range(len(models)):
-	#	model = fit.models[i]
-	#	print('Model{} params:'.format(i))
-	#	print(model.fitted_params)
+	fit = Fit(name, data, models, verbose=3, info=info, mle=True)
+	print('BA{}'.format(name))
+	for i in range(len(models)):
+		model = fit.models[i]
+		print('Model{} params:'.format(i))
+		print(model.fitted_params)
 	return fit
 
 def main(models):
@@ -202,7 +232,13 @@ def main(models):
 		fn = fig_dir + fig_fmt.format(fit.name)
 		print('Saving figure {}'.format(fn))
 		pf.comparison('AIC', 'Comparison AIC model {}'.format(fit.name),
-			fn, xlabel='$k$', ylabel='$p(k)$', log=True)
+			fn, xlabel='$k$', ylabel='$p(k)$', log=False)
+
+
+	cmp_table = TeXTable(fits)
+	tex_cmp_table = cmp_table.compare_param(transpose=True)
+	fn = table_dir + 'param_dd.tex'
+	cmp_table.save(tex_cmp_table, fn)
 
 
 main(models)

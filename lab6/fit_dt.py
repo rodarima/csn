@@ -120,6 +120,11 @@ def fit_vertex(v):
 		pf.comparison('AIC', 'Generation model {}. All fit models for vertex {}'.format(
 			fit.name, v), fig_fn, xlabel='$t$', ylabel='$k$', mean=False)
 
+	cmp_table = TeXTable(fits)
+	tex_cmp_table = cmp_table.compare_param(transpose=True)
+	fn = table_dir + 'param_dt{}.tex'.format(v)
+	cmp_table.save(tex_cmp_table, fn)
+
 def main():
 	# Read the tracing vertex indices
 	tracing_vertices = np.genfromtxt(tracing_fn, dtype='int')
