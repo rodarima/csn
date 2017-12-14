@@ -1,13 +1,13 @@
-% Saved into report.tex at 18:55 from the ShareLatex web
-
+% Saved into the git report.tex at 2017/12/15 at 00:11 from this web
 \documentclass{article}
 \usepackage[utf8]{inputenc}
-
+\usepackage{pythonhighlight}
 
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{float}
 
 % Use better tables
 \usepackage{booktabs}
@@ -15,41 +15,7 @@
 % Units
 \usepackage{siunitx}
 
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
-
-\lstset{ %
-  language=R,                     % the language of the code
-  basicstyle=\footnotesize,       % the size of the fonts that are used for the code
-  numbers=left,                   % where to put the line-numbers
-  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
-  stepnumber=1,                   % the step between two line-numbers. If it's 1, each line
-                                  % will be numbered
-  numbersep=5pt,                  % how far the line-numbers are from the code
-  backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
-  showspaces=false,               % show spaces adding particular underscores
-  showstringspaces=false,         % underline spaces within strings
-  showtabs=false,                 % show tabs within strings adding particular underscores
-  frame=single,                   % adds a frame around the code
-  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
-  tabsize=2,                      % sets default tabsize to 2 spaces
-  captionpos=b,                   % sets the caption-position to bottom
-  breaklines=true,                % sets automatic line breaking
-  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
-  title=\lstname,                 % show the filename of files included with \lstinputlisting;
-                                  % also try caption instead of title
-  keywordstyle=\color{blue},      % keyword style
-  commentstyle=\color{dkgreen},   % comment style
-  stringstyle=\color{mauve},      % string literal style
-  escapeinside={\%*}{*)},         % if you want to add a comment within your code
-  morekeywords={*,...}            % if you want to add more keywords to the set
-} 
-
-
-
 \usepackage{listings}
-\usepackage[dvipsnames]{xcolor}
 
 \title{Lab 6 - CSN: Network dynamics}
 \author{Pierre-Antoine Porte \\ \texttt{porte.pierreantoine@gmail.com}
@@ -62,7 +28,7 @@
 
 \maketitle
 
-\section*{Introduction}
+\section{Introduction}
 
 In this session, we had to model 3 different models following the dynamical 
 principles of the Barabasi-Albert model. Those principles are: vertex growth and 
@@ -85,32 +51,154 @@ analysis. We will discuss those results and explain them. Then we will explain
 how we implemented the model simulations and what we used to analyze it in the 
 Methods section.
 
-\section*{Results}
-%
-\begin{table}[h]
+\section{Results}
+
+For table \ref{tab:AICdd}, the columns represents the models where respectively:
+
+\begin{itemize}
+    \item 1 is Barabasi-Albert
+    \item 2 is with random attachment instead of preferential
+    \item 3 is without vertex growth
+\end{itemize}
+
+% AICs
+
+\begin{table}[H]
 	\centering
-	\input{table/param_dd.tex}
-	\caption{Parameters used in each model.}
+	\input{tableAIC.tex}
+	\caption{AIC measures for the degree distribution.}
+	\label{tab:AICdd}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{AIC_dt1.tex}
+	\caption{AIC measures for the vertex degree over time for $t_i = 1$.}
+	\label{tab:AICdt1}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{AIC_dt10.tex}
+	\caption{AIC measures for the vertex degree over time for $t_i = 10$.}
+	\label{tab:AICdt10}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{AIC_dt100.tex}
+	\caption{AIC measures for the vertex degree over time for $t_i = 100$.}
+	\label{tab:AICdt100}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{AIC_dt1000.tex}
+	\caption{AIC measures for the vertex degree over time for $t_i = 1000$.}
+	\label{tab:AICdt1000}
+\end{table}
+
+% Params
+\begin{table}[H]
+	\centering
+	\input{param_dd.tex}
+	\caption{Parameters for degree distribution models fitting.}
 	\label{tab:param_dd}
 \end{table}
-\begin{table}[h]
+\begin{table}[H]
 	\centering
-	\input{table/param_dt1.tex}
-	\caption{Parameters used with the models at $t = 1$.}
-	\label{tab:param_dt1}
+	\input{param_dt1.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 1$.}
+	\label{tab:paramsdt1}
 \end{table}
-%
+\begin{table}[H]
+	\centering
+	\input{param_dt10.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 10$.}
+	\label{tab:paramsdt10}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{param_dt100.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 100$.}
+	\label{tab:paramsdt100}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{param_dt1000.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 1000$.}
+	\label{tab:paramsdt1000}
+\end{table}
 
-\section*{Discussion}
+\section{Discussion}
+
+\subsection{Simulation of the models}
 
 As explained in section Methods, we used $m_0$ and $n_0$ always with the same 
 values (which can be however different for each model). We never compared the 
 models with different $m_0$ or $n_0$ for the same model. It could have indicate 
 us if the model behave differently given different graph in input. We could have 
 went further and do this but we preferred to focus on the analysis of our 
-different models.
+different models with the input specified in the methods section.
 
-\section*{Methods} \label{methods}
+\subsection{Barabasi-Albert}
+
+% TODO Understand why we don't have this barabasi albert property %
+
+\subsection{Vertex degree over time}
+
+We checked if the power-law dependency with 1/2 exponent gives the best fit to 
+all the time series as required by the statement. This power-law dependency is 
+not the best fit. This power-law is model 1, which has an AIC higher than model 
+2 (see tables \ref{tab:AICdt1} to \ref{tab:AICdt1000}. In fact the best model is 
+model 2, defined as \textbf{$a*{t^b}$}, which is the exponential growth. It 
+makes sense because with one free parameter we can better optimize this model to 
+fit the data, by adapting b to somewhat close to 1/2 as expected in model 1.
+
+However if we look at table \ref{tab:paramsdt1} to \ref{tab:paramsdt1000}, we 
+see that $b \approx 0.5$ only for $t_i = 1000$ (table \ref{tab:AICdt1000}).
+
+\subsection{Degree distribution}
+
+\subsection{Barabasi-Albert without preferential attachment}
+
+\subsection{Vertex degree over time}
+
+\subsection{Degree distribution}
+
+
+\subsection{Barabasi-Albert without vertex growth}
+
+\subsubsection{Vertex degree over time}
+
+As expected by statement, this model's scaling vertex degree over time should 
+fit a linear scale. By computing the AIC (see tables \ref{tab:AICdt1} to 
+\ref{tab:AICdt1000}) we have seen that the linear model was good. Also, we are 
+really confident by saying it's linear when we look at the plot generated for 
+model3, for every $t_is$. However we find that model0, 0+, 2 and 2+ are the 
+best. Sometimes it's 0(+), sometimes it's 2(+). Model 2 is represented as 
+$at^b$, as b is close to 1 as we can see in tables \ref{tab:AICdt1} to 
+\ref{tab:AICdt1000}, which explain this good fit for model 2 and 2+.
+
+\subsubsection{Degree distribution}
+
+As stated by the statement, the degree distribution for this model should be 
+closer to a binomial distribution. Indeed it looks like it, but we found out it 
+looked even more of a displaced poisson with on a different scale. If we took 
+$\lambda = 2$, then we would have a fastly increasing and decreasing poisson 
+which is what we want. However, this Poisson has a mean of $\lambda = 2$. 
+Therefore, it does not fit our data which has a mean of approximately 10.
+%TODO VERIFY the mean
+So we displaced the poisson and adjusted the scale. The lasting problem was that 
+due do this scale and displacement, our model never produces data $\approx 0$ 
+whereas the generated model data had a lot of values $\approx 0$.
+
+In the end we chose to use a poisson distribution as we did in lab2. It's not a 
+really good fit but it's still the best fit we have. You can see this plot in 
+figure
+%TODO ref figure
+
+We also made sure that the distribution giving the best fit in not a power-law, 
+it's looking more of a Gausian one. However since it's not symetric it was hard 
+to model the data using a normal law, for example.
+
+\section{Methods} \label{methods}
 
 For the default \textit{Barabasi-Albert} and model with random attachment the 
 initial graph was an empty graph with only one vertex.
@@ -123,15 +211,42 @@ For the three models we used $m_0 = 0$ to used "\textit{clean}" and
 "\textit{empty}" graphs.
 
 We measured the growth of the vertex degree over time and the degree 
-distribution for each model. The vertex degree was measured over the time for $t 
-= 1, 10, 100, 1000, 10000$ successively.
+distribution for each model. The vertex degree was measured over the time for 
+$t_i = 1, 10, 100, 1000, 10000$ successively.
 
 We used python for generating the models, to store the results and to analyze 
 the data. For each BA model $M$ a folder in \texttt{data/model$M$/} contains all 
 the results produced from this model. Inside, the degree sequence is stored in 
 the file \texttt{dseq.txt}, the degree distribution in \texttt{dd.txt} and for 
-each $T$ in the arrival time, we produced \texttt{dt\_$T$.txt} tracing the 
-degree of the vertex arriving at time $T$.
+each $T$ in the arrival time, we produced \texttt{dt\_$t_i$.txt} tracing the 
+degree of the vertex arriving at time $t$.
+
+\subsection{Generating model with preferential attachment}
+
+While trying to define how to make the preferential attachment for model 3 we 
+faced a problem. We were choosing from the edges to be linked to our vertex in 
+an array of probability p, with the degree of the node over the sum of the 
+degrees of all nodes as:
+
+\begin{python}
+    p[i] = vertex.degree()/sum(graph.all_degrees())
+\end{python}
+
+However, with this, if you had m0 = 5 and only 4 vertices with a degree > 0, 
+then you could not choose your 5 vertices, and it did not work.
+
+What we needed to do is counting stubs instead of degree, with a virtual stub 
+for each unconnected vertex. Therefore our array of probability p was computed 
+as:
+
+\begin{python}
+if vertex.degree == 0:
+    p[i] = 1 / sum(graph.all_degrees()) + sum(number_of_nodes_with_degree_0)
+else:
+    p[i] = vertex.degree() / (sum(graph.all_degrees()) + sum(number_of_nodes_with_degree_0))
+\end{python}
+
+In the end the degree was represented with the number of stubs.
 
 
 \end{document}
