@@ -17,6 +17,9 @@ GRAPH_MODELS = np.arange(N_GRAPH_MODELS) + 1
 # Reproducible runs
 np.random.seed(1)
 
+# BA models
+
+BA_MODELS = ['A', 'B', 'C']
 
 # Model functions
 
@@ -142,11 +145,11 @@ N_DATASETS = 3
 
 runs = 1
 
-def prepare_data(m):
+def prepare_data(name):
 	datasets = []
 	max_nsample = 0
 	for r in range(runs):
-		fn = data_dir + dataset_fmt.format(m, r)
+		fn = data_dir + dataset_fmt.format(name, r)
 		print('Reading {}'.format(fn))
 		data = np.genfromtxt(fn, delimiter=' ')
 
@@ -207,11 +210,10 @@ def compute_info(data):
 	return info
 
 
-def fit_model(m, models):
-	name = str(m)
-	data, info = prepare_data(m)
+def fit_model(name, models):
+	data, info = prepare_data(name)
 	fit = Fit(name, data, models, verbose=3, info=info, mle=True)
-	print('BA{}'.format(name))
+	print('BA model {}'.format(name))
 	for i in range(len(models)):
 		model = fit.models[i]
 		print('Model{} params:'.format(i))
@@ -221,7 +223,7 @@ def fit_model(m, models):
 def main(models):
 
 	fits = []
-	for m in range(1, N_GRAPH_MODELS+1):
+	for m in BA_MODELS:
 		fit = fit_model(m, models)
 		fits.append(fit)
 
@@ -234,6 +236,9 @@ def main(models):
 		pf.comparison('AIC', 'Comparison AIC model {}'.format(fit.name),
 			fn, xlabel='$k$', ylabel='$p(k)$', log=False)
 
+	table = TeXTable(fits)
+	tex_aic_table = table.diff_measure('AIC', ' ', transpose=True)
+	table.save(tex_aic_table, table_dir + 'AIC_dd.tex')
 
 	cmp_table = TeXTable(fits)
 	tex_cmp_table = cmp_table.compare_param(transpose=True)

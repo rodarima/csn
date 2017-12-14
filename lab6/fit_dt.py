@@ -15,6 +15,10 @@ np.random.seed(1)
 VERBOSE = 2
 FIT_MEAN = True
 
+# BA models
+
+BA_MODELS = ['A', 'B', 'C']
+
 
 # Model functions
 
@@ -89,11 +93,10 @@ def aggregate_mean(data):
 def fit_vertex(v):
 	print(':: Fitting models for vertex {}'.format(v))
 	fits = []
-	for m in range(1, N_DATASETS+1):
-		name = '{}'.format(m)
+	for name in BA_MODELS:
 		data = None
 		for r in range(runs):
-			fn = data_dir + dataset_fmt.format(m, v, r)
+			fn = data_dir + dataset_fmt.format(name, v, r)
 			print('Reading {}'.format(fn))
 			run_data = np.genfromtxt(fn, delimiter=' ')
 			#data = np.log(data)
