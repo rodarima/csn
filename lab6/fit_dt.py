@@ -12,7 +12,7 @@ from fitcore import *
 
 # Reproducible runs
 np.random.seed(1)
-VERBOSE = 0
+VERBOSE = 2
 FIT_MEAN = True
 
 
@@ -41,24 +41,30 @@ class Model0d(Model):
 		return a * t + d
 class Model1d(Model):
 	name = '1+'
+	bounds = [[0.0, 0.5], [-5, +5]]
 	def func(self, t, a, d):
 		return a * np.sqrt(t) + d
 class Model2d(Model):
 	name = '2+'
+	bounds = [[0.0, 0.5], [0.3, 2.0], [-5, +5]]
 	def func(self, t, a, b, d):
 		return a * t**b + d
 class Model3d(Model):
 	name = '3+'
-	def func(self, t, a, c, d):
+	bounds = [[0.0, 1], [0.2, 3], [-20, -8]]
+	def func(self, t, a=0.289, c=0.853, d=-10):
 		return a * np.exp(c * t) + d
 class Model4d(Model):
 	name = '4+'
 	params = ['a', 'd_1', 'd_2']
-	def func(self, t, a, d1, d2):
+	bounds = [[0.0, 100], [0, 50000], [-500, 10]]
+	def func(self, t, a=2, d1=500, d2=-5):
 		return a * np.log(t + d1) + d2
 
 models = [Model0, Model1, Model2, Model3, Model4,
 	Model0d, Model1d, Model2d, Model3d, Model4d]
+
+#models = [Model3d]
 
 def sort_data(data):
 	ind = np.argsort(data[:,0])

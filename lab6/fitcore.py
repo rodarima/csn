@@ -84,7 +84,7 @@ class Model:
 		return self.fitted_data
 
 class Fit:
-	def __init__(self, name, data, models, verbose=0, info=None, mle=False):
+	def __init__(self, name, data, models, verbose=0, info=None, mle=False, evolution=False):
 		assert(len(data.shape) == 2)
 		assert(data.shape[1] == 2)
 		self.name = name
@@ -98,6 +98,7 @@ class Fit:
 		self.loss = 'soft_l1'
 		self.info = info
 		self.use_mle = mle
+		self.evolution = evolution
 
 		# Models should be initialized before, so we can add fine params at the
 		# beginning
@@ -113,7 +114,7 @@ class Fit:
 		x0 = model.get_initial_params(mll = True)
 		#print(x0)
 		results = minimize(model.mll, x0, method='L-BFGS-B',
-			bounds=model.get_bounds(), options={'disp':self.verbose > 2})
+			bounds=model.get_bounds(), options={'disp':self.verbose > 1})
 		params = results.x
 		model.fitted_params = params
 
@@ -132,13 +133,17 @@ class Fit:
 			params, pcov = curve_fit(model.func, self.x, self.y,
 				bounds=model.get_pair_bounds(), verbose=self.verbose, loss=self.loss)
 		except: # In case of non-convergence try evolution
-			def diff_model(p):
-				return np.sum((self.y - model.func(self.x, *p))**2)
+			
+			if self.evolution:
+				def diff_model(p):
+					return np.sum((self.y - model.func(self.x, *p))**2)
 
-			if(self.verbose):
-				print('  Fit failed, running differential evolution...')
-			de = differential_evolution(diff_model, model.get_bounds(), seed=self.seed)
-			params = de.x
+				if(self.verbose):
+					print('  Fit failed, running differential evolution...')
+				de = differential_evolution(diff_model, model.get_bounds(), seed=self.seed)
+				params = de.x
+			else:
+				params = model.get_initial_params()
 
 		# Avoid np array in order to call the model with *params
 		model.fitted_params = list(params)
@@ -322,7 +327,7 @@ class PlotFit:
 		plt.ylim((.9 * np.min(y), np.max(y) * 1.1))
 		plt.xlim((.9 * np.min(x), np.max(x) * 1.1))
 
-	def comparison(self, measure, title, fn, xlabel='', ylabel='', mean=False, log=True):
+	def comparison(self, measure, title, fn, xlabel='', ylabel='', mean=False, log=False):
 		plt.figure(figsize=(8, 6))
 
 		# Plot the data before the models
