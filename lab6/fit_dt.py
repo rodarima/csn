@@ -23,52 +23,57 @@ BA_MODELS = ['A', 'B', 'C']
 # Model functions
 
 class Model0(Model):
+	name = 'T0'
 	def func(self, t, a):
 		return a * t
 class Model1(Model):
+	name = 'T1'
 	def func(self, t, a):
 		return a * np.sqrt(t)
 class Model2(Model):
+	name = 'T2'
 	def func(self, t, a, b):
 		return a * t**b
 class Model3(Model):
+	name = 'T3'
 	def func(self, t, a, c):
 		return a * np.exp(c * t)
 class Model4(Model):
+	name = 'T4'
 	params = ['a', 'd_1']
 	def func(self, t, a, d1):
 		return a * np.log(t + d1)
 
 class Model0d(Model):
-	name = '0+'
+	name = 'T0+'
 	def func(self, t, a, d):
 		return a * t + d
 class Model1d(Model):
-	name = '1+'
+	name = 'T1+'
 	bounds = [[0.0, 0.5], [-5, +5]]
 	def func(self, t, a, d):
 		return a * np.sqrt(t) + d
 class Model2d(Model):
-	name = '2+'
-	bounds = [[0.0, 0.5], [0.3, 2.0], [-5, +5]]
+	name = 'T2+'
+	bounds = [[0.0, 0.8], [0.3, 2.0], [-5, +10]]
 	def func(self, t, a, b, d):
 		return a * t**b + d
 class Model3d(Model):
-	name = '3+'
+	name = 'T3+'
 	bounds = [[0.0, 1], [0.2, 3], [-20, -8]]
 	def func(self, t, a=0.289, c=0.853, d=-10):
 		return a * np.exp(c * t) + d
 class Model4d(Model):
-	name = '4+'
+	name = 'T4+'
 	params = ['a', 'd_1', 'd_2']
-	bounds = [[0.0, 100], [0, 50000], [-500, 10]]
-	def func(self, t, a=2, d1=500, d2=-5):
+	bounds = [[0.0, 10], [-10, 50], [-10, 10]]
+	def func(self, t, a=2, d1=5, d2=-1):
 		return a * np.log(t + d1) + d2
 
 models = [Model0, Model1, Model2, Model3, Model4,
 	Model0d, Model1d, Model2d, Model3d, Model4d]
 
-#models = [Model3d]
+#models = [Model4d]
 
 def sort_data(data):
 	ind = np.argsort(data[:,0])
@@ -122,6 +127,7 @@ def fit_vertex(v):
 
 	# We use all_dti.png to distinguish between the best_dti.png
 	fig_fmt = 'model{}/all_dt{}.png'
+	best_fmt = 'model{}/best_dt{}.png'
 
 	for fit in fits:
 		pf = PlotFit(fit)
@@ -129,8 +135,12 @@ def fit_vertex(v):
 		pf.comparison('AIC', 'Generation model {}. All fit models for vertex {}'.format(
 			fit.name, v), fig_fn, xlabel='$t$', ylabel='$k$', mean=False)
 
+		fig_fn = fig_dir + best_fmt.format(fit.name, v)
+		pf.best('AIC', 'Best fit for model {}, vertex {}'.format(
+			fit.name, v), fig_fn, xlabel='$t$', ylabel='$k$')
+
 	cmp_table = TeXTable(fits)
-	tex_cmp_table = cmp_table.compare_param(transpose=True)
+	tex_cmp_table = cmp_table.compare_param(title='Param', transpose=True)
 	fn = table_dir + 'param_dt{}.tex'.format(v)
 	cmp_table.save(tex_cmp_table, fn)
 

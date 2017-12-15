@@ -25,6 +25,7 @@ BA_MODELS = ['A', 'B', 'C']
 # Model functions
 
 class Model1(Model):
+	name = 'D1'
 	bounds = (0.5, 10)
 	params = ['\lambda']
 	def __init__(self, info):
@@ -38,6 +39,7 @@ class Model1(Model):
 		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
 
 class Model1c(Model):
+	name = 'D1c'
 	bounds = [[3, 6], [-5, -1], [0.1, 0.8]]
 	params = ['\lambda']
 	def __init__(self, info):
@@ -51,6 +53,7 @@ class Model1c(Model):
 		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
 
 class Model1b(Model):
+	name = 'D1b'
 	bounds = [[0.01, 1.0], [2, 50], [0.5, 1], [-0.1, 0.1]]
 	#params = ['\lambda', 'd']
 	def __init__(self, info):
@@ -66,6 +69,7 @@ class Model1b(Model):
 		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
 
 class Model2(Model):
+	name = 'D2'
 	bounds = (0.1, 10)
 	def __init__(self, info):
 		self.info = info
@@ -78,6 +82,7 @@ class Model2(Model):
 		return -((M - N) * np.log(1 - q) + N*np.log(q))
 
 class Model3(Model):
+	name = 'D3'
 	def __init__(self, info):
 		self.info = info
 	def func(self, k):
@@ -91,6 +96,7 @@ class Model3(Model):
 		
 
 class Model4(Model):
+	name = 'D4'
 	params = ['\gamma']
 	bounds = (2, 3.5)
 	def __init__(self, info):
@@ -104,6 +110,7 @@ class Model4(Model):
 		return -(-g * MM - N * np.log(zeta(g)))
 
 class Model5(Model):
+	name = 'D5'
 	params = ['\gamma', 'k_{\max}']
 	bounds = np.array([[1.8, 3.5], [+10, 30]])
 	
@@ -229,20 +236,25 @@ def main(models):
 		fits.append(fit)
 
 		# Save plots
-		fig_fmt = 'model{}/all_dd.png'
+		fig_fmt = 'model{}/all_dd.pdf'
 
 		pf = PlotFit(fit)
 		fn = fig_dir + fig_fmt.format(fit.name)
 		print('Saving figure {}'.format(fn))
 		pf.comparison('AIC', 'Comparison AIC model {}'.format(fit.name),
-			fn, xlabel='$k$', ylabel='$p(k)$', log=False)
+			fn, xlabel='$k$', ylabel='$p(k)$', log=True)
+
+		fig_fmt = 'model{}/best_dd.pdf'
+		fn = fig_dir + fig_fmt.format(fit.name)
+		pf.best('AIC', 'Best fit for model {}'.format(fit.name),
+			fn, xlabel='$k$', ylabel='$p(k)$', log=True)
 
 	table = TeXTable(fits)
 	tex_aic_table = table.diff_measure('AIC', ' ', transpose=True)
 	table.save(tex_aic_table, table_dir + 'AIC_dd.tex')
 
 	cmp_table = TeXTable(fits)
-	tex_cmp_table = cmp_table.compare_param(transpose=True)
+	tex_cmp_table = cmp_table.compare_param(title='Param', transpose=True)
 	fn = table_dir + 'param_dd.tex'
 	cmp_table.save(tex_cmp_table, fn)
 

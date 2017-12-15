@@ -271,7 +271,7 @@ class TeXTable:
 		for model in fit.models:
 			model_name = model.get_name()
 			for param in model.get_params():
-				row.append('${} {}$'.format(model_name, param))
+				row.append('${}$, ${}$'.format(model_name, param))
 
 		return row
 
@@ -321,14 +321,17 @@ class PlotFit:
 	def __init__(self, fit):
 		self.fit = fit
 
-	def plot_model(self, model, measure, style):
+	def plot_model(self, model, style, measure=None):
 		# Already computed
 		x = self.fit.x
 		yy = model.fitted_data
-		m = model.measures[measure]
 		
-		plt.plot(x, yy, style, label='{} {} = {:.2f}'.format(
-			model.get_name(), measure, m))
+		if measure != None:
+			label = '{} {} = {:.2f}'.format(model.get_name(),
+				measure, model.measures[measure])
+		else: label = model.get_name()
+		
+		plt.plot(x, yy, style, label=label)
 
 	def aggregate_mean(self, data):
 		df = pd.DataFrame(data, columns=('x', 'y'))
@@ -356,7 +359,7 @@ class PlotFit:
 		plt.xlim((.9 * np.min(x), np.max(x) * 1.1))
 
 	def comparison(self, measure, title, fn, xlabel='', ylabel='', mean=False, log=False):
-		plt.figure(figsize=(8, 6))
+		plt.figure(figsize=(5, 4))
 
 		# Plot the data before the models
 		self.plot_data(mean)
@@ -366,7 +369,39 @@ class PlotFit:
 
 		for model in self.fit.models:
 			style = next(linecycler)
-			self.plot_model(model, measure, style)
+			self.plot_model(model, style, measure)
+
+		# Plot the data after the models
+		#self.plot_data(mean)
+
+		plt.title(title)
+		plt.xlabel(xlabel)
+		plt.ylabel(ylabel)
+
+		if log:
+			plt.xscale('log')
+			plt.yscale('log')
+
+		self.scale_to_data()
+
+		plt.legend()
+		plt.savefig(fn, bbox_inches='tight')
+		plt.close()
+
+	def best(self, measure, title, fn, xlabel='', ylabel='', mean=False, log=False):
+		plt.figure(figsize=(5, 4))
+
+		# Plot the data before the models
+		self.plot_data(mean)
+
+		lines = ["-","--","-.",":"]
+		linecycler = cycle(lines)
+
+		i_best = np.argmin([model.measures[measure] for model in self.fit.models])
+		best_model = self.fit.models[i_best]
+		
+		style = next(linecycler)
+		self.plot_model(best_model, 'r')
 
 		# Plot the data after the models
 		#self.plot_data(mean)

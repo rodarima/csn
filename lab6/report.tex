@@ -1,14 +1,16 @@
 % Saved into the git report.tex at 2017/12/15 at 00:11 from this web
-\documentclass{article}
+\documentclass[a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage{pythonhighlight}
+%\usepackage{pythonhighlight}
 
-\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\graphicspath{ {fig/} }
+\graphicspath{{fig/}}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{float}
+
+% Click on references
+\usepackage{hyperref}
 
 % Use better tables
 \usepackage{booktabs}
@@ -16,7 +18,19 @@
 % Units
 \usepackage{siunitx}
 
-\usepackage{listings}
+\usepackage{minted}
+\newminted{py}{%
+%		linenos,
+		fontsize=\footnotesize,
+		tabsize=4,
+		mathescape,
+}
+\newminted{text}{%
+%		linenos,
+		fontsize=\small,
+		tabsize=2,
+		mathescape,
+}
 
 \title{Lab 6 - CSN: Network dynamics}
 \author{Pierre-Antoine Porte \\ \texttt{porte.pierreantoine@gmail.com}
@@ -30,242 +44,345 @@
 \maketitle
 
 \section{Introduction}
-
-In this session, we had to model 3 different models following the dynamical 
-principles of the Barabasi-Albert  model. Those principles are: vertex growth 
-and preferential attachment. The different models we needed to implements were 
-the following:
-
+%
+In this session, we are going to generate some data by using 3 different 
+variations of the dynamical principles in Barabasi-Albert models (BA models in 
+the future).  Those principles are: vertex growth and preferential attachment.  
+The different variations of models we will implements are:
+%
 \begin{itemize}
-	\item Barabasi-Albert with the two dynamical principles
-	\item Barabasi-Albert with random attachment instead of preferential
-	attachment (only one dynamical principle).
-	\item Barabasi-Albert with vertex growth suppressed (only one dynamical
-	principle).
+	\item \textbf{A}: Vertex growth and preferential attachment (original).
+	\item \textbf{B}: Vertex growth and uniform random attachment.
+	\item \textbf{C}: Suppressed growth and preferential attachment.
 \end{itemize}
-
-Those models were simulated and the data kept in files so we could analyze
-mathematical properties of those models.
-
-In this report we will show our results regarding those models and their
-analysis. We will discuss those results and explain them. Then we will explain
-how we implemented the model simulations and what we used to analyze it in the
-Methods section.
-
+%
+Those generator models were simulated and the stored data will let us to analyze 
+mathematical properties. In this report we will show, discuss and explain the 
+results as well as the details of the implementation.
+%
 \section{Results}
+%
+For each generation model (A, B and C), two metrics are analyzed, the 
+distribution of the degrees of the nodes (D), and the evolution of a node as the 
+graph grows over time (T).  We track the evolution of 4 different nodes selected 
+from different points in the simulation. In the figures from~\ref{fig:all_dd_A} 
+to~\ref{fig:bestC_dt1000} the best models are plotted along with the data. The 
+notation for each model has been slightly changed, to avoid confusion. All 
+models from session 2 where renamed with a T as prefix, and those from the 
+session 3 a D as prefix instead. Those prefixes let us distinguish between say 
+the model $D1$ and $T1$, as one is modeling the degree distribution, and the 
+other the degree over time. The models for the evolution of degree over time can 
+be shown in table~\ref{tab:Tmodels}, the models for the degree distribution are 
+used in the minimum log likelihood form, and the only change is $\gamma = 3 $ in 
+model 2 (see table 2 of session 2).
+%
+The tables~\ref{tab:AICdd} to~\ref{tab:AICdt1000} use AIC to
+measure $\Delta = AIC - AIC_{best}$ of each model.
+%
+\begin{table}[H]
+	\centering
+	\begin{tabular}{cll}
+		\toprule
+		Model & Function & Parameters\\
+		\midrule
+		T0  & $f(n) = at$								& $a$ \\
+		T1  & $f(t) = (t/2)^b$					& $b$ \\
+		T2  & $f(t) = at^b$ 						& $a,b$\\
+		T3  & $f(t) = ae^{ct}$					& $a,c$\\
+		T4  & $f(t) = a\log t$					& $a$\\
+		T5  & $f(t) = at^be^{ct}$				& $a,b,c$\\
+		T1+ & $f(t) = (t/2)^b + d$			& $b,d$\\
+		T2+ & $f(t) = at^b + d$					& $a,b,d$\\
+		T3+ & $f(t) = ae^{ct} + d$			& $a,c,d$\\
+		T4+ & $f(t) = a\log t + d$			& $a,d$\\
+		T5+ & $f(t) = at^be^{ct} + d$	& $a,b,c,d$\\
+		\bottomrule
+	\end{tabular}
+	\caption{The list of models to fit the degree over time.}
+	\label{tab:Tmodels}
+\end{table}
 
-The columns represents the models where respectively:
+\newpage
 
-\begin{itemize}
-		\item A is Barabasi-Albert
-		\item B is with random attachment instead of preferential
-		\item C is without vertex growth
-\end{itemize}
-
-The tables in annexes (\ref{tab:AICdd} to \ref{tab:AICdt1000}) uses AIC to
-measure $\delta$ between each model.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{modelA/all_dd.png}
-    \caption{Distribution degree for model A}
-    \label{fig:all_dd_A}
-\end{figure}
-
-\begin{figure}[h]
+\begin{figure}[H]
 		\centering
-    \includegraphics[width=0.5\textwidth]{modelB/all_dd.png}
-    \caption{Distribution degree for model B}
-    \label{fig:all_dd_B}
+		\includegraphics[width=0.5\textwidth]{modelA/best_dd.pdf}
+		\caption{Distribution degree for model A}
+		\label{fig:all_dd_A}
 \end{figure}
-
-\begin{figure}[h]
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelB/best_dd.pdf}
+		\caption{Distribution degree for model B}
+		\label{fig:all_dd_B}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/best_dd.pdf}
+		\caption{Distribution degree for model C}
+		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{modelC/all_dd.png}
-    \caption{Distribution degree for model C}
-    \label{fig:all_dd_C}
+		\includegraphics[width=0.5\textwidth]{modelA/best_dt1.png}
+		\caption{Degree over time for model A with vertex at $t=1$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/best_dt1.png}
+		\caption{Degree over time for model B with vertex at $t=1$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/best_dt1.png}
+		\caption{Degree over time for model C with vertex at $t=1$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelA/best_dt10.png}
+		\caption{Degree over time for model A with vertex at $t=10$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/best_dt10.png}
+		\caption{Degree over time for model B with vertex at $t=10$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/best_dt10.png}
+		\caption{Degree over time for model C with vertex at $t=10$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelA/best_dt100.png}
+		\caption{Degree over time for model A with vertex at $t=100$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/best_dt100.png}
+		\caption{Degree over time for model B with vertex at $t=100$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/best_dt100.png}
+		\caption{Degree over time for model C with vertex at $t=100$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelA/best_dt1000.png}
+		\caption{Degree over time for model A with vertex at $t=10000$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/best_dt1000.png}
+		\caption{Degree over time for model B with vertex at $t=1000$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/best_dt1000.png}
+		\caption{Degree over time for model C with vertex at $t=1000$}
+		\label{fig:bestC_dt1000}
 \end{figure}
 
+%
 % TODO: add dt1->1000 for each model
-
+%
 \section{Discussion}
 
-\subsection{Simulation of the models}
+We used $m_0$ and $n_0$ always with the same values (which can be however 
+different for each model). We never compared the models with different $m_0$ or 
+$n_0$ for the same model. It could have indicate us if the model behave 
+differently given different graph in input. We could have went further and do 
+this but we preferred to focus on the analysis of our different models with the 
+input specified in the methods section.
 
-As explained in section Methods, we used $m_0$ and $n_0$ always with the same
-values (which can be however different for each model). We never compared the
-models with different $m_0$ or $n_0$ for the same model. It could have indicate
-us if the model behave differently given different graph in input. We could have
-went further and do this but we preferred to focus on the analysis of our
-different models with the input specified in the methods section.
-
-\subsection{Barabasi-Albert}
+\subsection{Model A}
 
 % TODO Understand why we don't have this barabasi albert property %
 
-\subsection{Vertex degree over time}
+\paragraph{Vertex degree over time}
 
-We checked if the power-law dependency with 1/2 exponent gives the best fit to
-all the time series as required by the statement. This power-law dependency is
-not the best fit. This power-law is model 1, which has an AIC higher than model
-2 (see tables \ref{tab:AICdt1} to \ref{tab:AICdt1000}. In fact the best model is
-model 2, defined as \textbf{$a*{t^b}$}, which is the exponential growth. It
-makes sense because with one free parameter we can better optimize this model to
-fit the data, by adapting b to somewhat close to 1/2 as expected in model 1.
+We checked if the power-law dependency with 1/2 exponent gives the best fit to 
+all the time series as required by the statement. This power-law dependency is 
+not the best fit. This power-law is model T1, which has an AIC higher than model 
+T2 (see tables \ref{tab:AICdt1} to \ref{tab:AICdt1000}). In fact the best model 
+is model T2, defined as $f(t) = at^b$, which is the exponential growth. It makes 
+sense because with one free parameter we can better optimize this model to fit 
+the data, by adapting $b$ to somewhat close to 1/2 as expected in model T1, 
+however we may be overestimating the data.
+%
+If we look at table \ref{tab:paramsdt1} to \ref{tab:paramsdt1000}, we
+see that $b \approx 0.5$ only for $t_i = 1000$ (table \ref{tab:paramsdt1000}).
 
-However if we look at table \ref{tab:paramsdt1} to \ref{tab:paramsdt1000}, we
-see that $b \approx 0.5$ only for $t_i = 1000$ (table \ref{tab:AICdt1000}).
+%\subsection{Degree distribution}
 
-\subsection{Degree distribution}
+\subsection{Model B}
 
-\subsection{Barabasi-Albert without preferential attachment}
+\paragraph{Vertex degree over time}
 
-\subsection{Vertex degree over time}
-
-For table \ref{tab:AICdt1} to \ref{tab:AICdt1000}, best model is as suggested by
-the statement the logarithmic model of the 4\textsuperscript{th} model. Indeed,
-we have 0 as $\delta$AIC for the vertex degree over time for this model and for every
-$t_i$ chosen to look at the vertex.
+For table \ref{tab:AICdt1} to \ref{tab:AICdt1000}, best model is as suggested by 
+the statement, the logarithmic model T4. Indeed, we have 0 as $\Delta$ for the 
+vertex degree over time for this model and for every $t_i$ chosen to look at the 
+vertex.
 
 %todo add plot
 
-\subsection{Degree distribution}
+\paragraph{Degree distribution}
 
 
 The best model for the degree distribution for the Barabasi Albert model without
-preferential attachment is the geometric one (model 1). Actually only the
-variant of the geometric model is good (model 1+), as we can see in table
-\ref{tab:AICdd}. The model 1 has a $\delta$AIC too high. However by replacing
-correctly the generated data from model 1, we now have a $\delta$AIC of 0.
+preferential attachment is the geometric one (model D1). Actually only the
+variant of the geometric model is good (model D1+), as we can see in table
+\ref{tab:AICdd}. The model D1 has a $\Delta$ too high. However by replacing
+correctly the generated data from model D1, we now have a $\Delta$ of 0.
 Thus, the geometric model variant is the best model.
 
-By looking at the figure \ref{fig:ADD THE PLOT}, we can clearly see that
-the geometric model (orange one)
-is a really good approximation of our data. It even goes through a lot of
-points of the actual data point we have.
+%By looking at the figure \ref{fig:ADD THE PLOT}, we can clearly see that
+%the geometric model (orange one) is a really good approximation of our data. It 
+%even goes through a lot of points of the actual data point we have.
 
 %todo add ref plot
 
 
-\subsection{Barabasi-Albert without vertex growth}
+\subsection{Model C}
 
-\subsubsection{Vertex degree over time}
+\paragraph{Vertex degree over time}
 
-As expected by statement, this model's scaling vertex degree over time should
-fit a linear scale. By computing the AIC and making the $\delta$ (see tables
-\ref{tab:AICdt1} to \ref{tab:AICdt1000}) we have seen that the linear model
-was good. Also, we are really confident by saying it's linear when we look at
-the plot generated for model3, for every $t_is$. However we find that model0,
-0+, 2 and 2+ are the best. Sometimes it's 0(+), sometimes it's 2(+). Model 2 is
-represented as $at^b$, as b is close to 1 as we can see in tables
-\ref{tab:AICdt1} to \ref{tab:AICdt1000}, which explain this good fit for model
-2 and 2+.
+As expected by statement, the degree over time should fit a linear scale. By 
+computing the AIC and making the $\Delta$ (see tables \ref{tab:AICdt1} to 
+\ref{tab:AICdt1000}) we have seen that the linear model was good. Also, we are 
+really confident by saying it's linear when we look at the plot generated for 
+model C, for every $t_is$. However we find that model T0, T0+, T2 and T2+ are 
+the best. Model T2 is represented as $at^b$, as $b$ is close to 1 as we can see 
+in tables \ref{tab:AICdt1} to \ref{tab:AICdt1000}, which explain this good fit 
+for model T2 and T2+.
 
-\subsubsection{Degree distribution}
+\paragraph{Degree distribution}
 
 As stated by the statement, the degree distribution for this model should be
 closer to a binomial distribution. Indeed it looks like it, but we found out it
-looked even more of a displaced poisson with on a different scale. If we took
-$\lambda = 2$, then we would have a fastly increasing and decreasing poisson
+looked even more of a displaced Poisson with on a different scale. If we took
+$\lambda = 2$, then we would have a faster increasing and decreasing Poisson
 which is what we want. However, this Poisson has a mean of $\lambda = 2$.
 Therefore, it does not fit our data which has a mean of approximately 10.
 %TODO VERIFY the mean
-So we displaced the poisson and adjusted the scale. The lasting problem was that
+So we displaced the Poisson and adjusted the scale. The lasting problem was that
 due do this scale and displacement, our model never produces data $\approx 0$
 whereas the generated model data had a lot of values $\approx 0$.
 
-In the end we chose to use a poisson distribution as we did in lab2. It's not a
-really good fit but it's still the best fit we have. You can see this plot in
-figure
+In the end we chose to use a Poisson distribution as we did in session 2. It's 
+not a really good fit but it's still the best fit we have. You can see this plot 
+in figure
 %TODO ref figure
 
-We also made sure that the distribution giving the best fit in not a power-law,
-it's looking more of a Gausian one. However since it's not symetric it was hard
-to model the data using a normal law, for example.
+We also made sure that the distribution giving the best fit in not a power-law, 
+it's looking more of a Gaussian one. However since it's not symmetric it was 
+hard to model the data using a normal law, for example.
 
 \section{Methods} \label{methods}
 
-For the default \textit{Barabasi-Albert} and model with random attachment the
-initial graph was an empty graph with only one vertex.
+For the model A and B the initial graph was an empty graph with only one vertex.  
+For C we used an unconnected graph with $t_{\max}$ vertices.  Because we have no 
+vertex growth, the vertices are not increasing and $n_0$ = $n_{tmax}$.  For the 
+three models we used $m_0 = 1$ as the initial number of edges added at each 
+step, changing this parameter can affect the final results, but was not tested.
 
-For the model without vertex growth, we used an unconnected graph with $t_max$
-vertices. Because we have no vertex growth, the vertices are not increasing and
-$n_0$ = $n_tmax$.
-
-For the three models we used $m_0 = 0$ to used "\textit{clean}" and
-"\textit{empty}" graphs.
-
-We measured the growth of the vertex degree over time and the degree
+We measured the growth of the vertex degree over time and the degree 
 distribution for each model. The vertex degree was measured over the time for
-$t_i = 1, 10, 100, 1000, 10000$ successively.
+$t_i \in {1, 10, 100, 1000}$ successively.
 
-We used python for generating the models, to store the results and to analyze
-the data. For each BA model $M$ a folder in \texttt{data/model$M$/} contains all
-the results produced from this model. Inside, the degree sequence is stored in
-the file \texttt{dseq.txt}, the degree distribution in \texttt{dd.txt} and for
-each $T$ in the arrival time, we produced \texttt{dt\_$t_i$.txt} tracing the
-degree of the vertex arriving at time $t$.
+We used python for generating the models, to store the results and to analyze 
+the data. For each BA model with the letter $M$ a folder in 
+\texttt{data/model$M$/} contains all the results produced from this model. 
+Inside, the degree sequence is stored in the file \texttt{dseq.txt}, the degree 
+distribution in \texttt{dd.txt} and for each $T$ in the arrival time, we 
+produced \texttt{dt\_$t_i$.txt} tracing the degree of the vertex arriving at 
+time $t$.
 
-\subsection{Generating model with preferential attachment}
+\subsection{Generating model C}
 
-While trying to define how to make the preferential attachment for model 3 we
+While trying to define how to make the preferential attachment for model C we
 faced a problem. We were choosing from the edges to be linked to our vertex in
-an array of probability p, with the degree of the node over the sum of the
-degrees of all nodes as:
+an array of probability $p$ (we didn't used the stubs method), with the degree 
+of the node over the sum of the degrees of all nodes as:
+%
+\begin{pycode}
+p[i] = vertex.degree() / sum(graph.all_degrees())
+\end{pycode}
+%
+However with $m0 = 5$ and only 4 vertices  connected, we cannot choose 5 
+vertices, and it would not work. To mimic the stub solution, we added one 
+virtual degree to each unconnected node. Therefore our array of probability $p$ 
+was computed as:
 
-\begin{python}
-    p[i] = vertex.degree()/sum(graph.all_degrees())
-\end{python}
-
-However, with this, if you had m0 = 5 and only 4 vertices with a degree > 0,
-then you could not choose your 5 vertices, and it did not work.
-
-What we needed to do is counting stubs instead of degree, with a virtual stub
-for each unconnected vertex. Therefore our array of probability p was computed
-as:
-
-\begin{python}
+\begin{pycode}
 if vertex.degree == 0:
-    p[i] = 1 / sum(graph.all_degrees()) + sum(number_of_nodes_with_degree_0)
+	p[i] = 1 / sum(graph.all_degrees()) + sum(number_of_nodes_with_degree_0)
 else:
-    p[i] = vertex.degree() / (sum(graph.all_degrees()) + sum(number_of_nodes_with_degree_0))
-\end{python}
+	p[i] = vertex.degree() / (sum(graph.all_degrees()) +
+		sum(number_of_nodes_with_degree_0))
+\end{pycode}
 
 In the end the degree was represented with the number of stubs.
 
-
-\section*{Annexes}
+\appendix
+\section{Tables}
 
 % AICs
 
 \begin{table}[H]
 	\centering
 	\input{table/AIC_dd.tex}
-	\caption{$\delta$ for the degree distribution.}
+	\caption{$\Delta$ for the degree distribution.}
 	\label{tab:AICdd}
 \end{table}
 \begin{table}[H]
 	\centering
 	\input{table/AIC_dt1.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 1$.}
+	\caption{$\Delta$ for the vertex degree over time for $t_i = 1$.}
 	\label{tab:AICdt1}
 \end{table}
 \begin{table}[H]
 	\centering
 	\input{table/AIC_dt10.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 10$.}
+	\caption{$\Delta$ for the vertex degree over time for $t_i = 10$.}
 	\label{tab:AICdt10}
 \end{table}
 \begin{table}[H]
 	\centering
 	\input{table/AIC_dt100.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 100$.}
+	\caption{$\Delta$ for the vertex degree over time for $t_i = 100$.}
 	\label{tab:AICdt100}
 \end{table}
 \begin{table}[H]
 	\centering
 	\input{table/AIC_dt1000.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 1000$.}
+	\caption{$\Delta$ for the vertex degree over time for $t_i = 1000$.}
 	\label{tab:AICdt1000}
 \end{table}
 
@@ -301,5 +418,112 @@ In the end the degree was represented with the number of stubs.
 	\label{tab:paramsdt1000}
 \end{table}
 
+\newpage
+\section{Figures with all models}
+
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelA/all_dd.pdf}
+		\caption{Distribution degree for model A}
+		\label{fig:all_dd_A}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelB/all_dd.pdf}
+		\caption{Distribution degree for model B}
+		\label{fig:all_dd_B}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/all_dd.pdf}
+		\caption{Distribution degree for model C}
+		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelA/all_dt1.png}
+		\caption{Degree over time for model A with vertex at $t=1$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/all_dt1.png}
+		\caption{Degree over time for model B with vertex at $t=1$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/all_dt1.png}
+		\caption{Degree over time for model C with vertex at $t=1$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelA/all_dt10.png}
+		\caption{Degree over time for model A with vertex at $t=10$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/all_dt10.png}
+		\caption{Degree over time for model B with vertex at $t=10$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/all_dt10.png}
+		\caption{Degree over time for model C with vertex at $t=10$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelA/all_dt100.png}
+		\caption{Degree over time for model A with vertex at $t=100$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/all_dt100.png}
+		\caption{Degree over time for model B with vertex at $t=100$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/all_dt100.png}
+		\caption{Degree over time for model C with vertex at $t=100$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelA/all_dt1000.png}
+		\caption{Degree over time for model A with vertex at $t=10000$}
+%		\label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+    \centering
+		\includegraphics[width=0.5\textwidth]{modelB/all_dt1000.png}
+		\caption{Degree over time for model B with vertex at $t=1000$}
+%    \label{fig:all_dd_C}
+\end{figure}
+%
+\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{modelC/all_dt1000.png}
+		\caption{Degree over time for model C with vertex at $t=1000$}
+		\label{fig:allC_dt1000}
+\end{figure}
 
 \end{document}
