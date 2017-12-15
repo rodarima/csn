@@ -165,7 +165,7 @@ see that $b \approx 0.5$ only for $t_i = 1000$ (table \ref{tab:AICdt1000}).
 
 For table \ref{tab:AICdt1} to \ref{tab:AICdt1000}, best model is as suggested by
 the statement the logarithmic model of the 4\textsuperscript{th} model. Indeed,
-we have 0 as AIC for this model for the vertex degree over time, for every
+we have 0 as $\delta$AIC for the vertex degree over time for this model and for every
 $t_i$ chosen to look at the vertex.
 
 %todo add plot
@@ -176,10 +176,16 @@ $t_i$ chosen to look at the vertex.
 The best model for the degree distribution for the Barabasi Albert model without
 preferential attachment is the geometric one (model 1). Actually only the
 variant of the geometric model is good (model 1+), as we can see in table
-\ref{tab:AICdd}. The model 1 has a delta AIC too high. However by replacing
-correctly the generated data from model 1, we now have a delta AIC of 0.
+\ref{tab:AICdd}. The model 1 has a $\delta$AIC too high. However by replacing
+correctly the generated data from model 1, we now have a $\delta$AIC of 0.
+Thus, the geometric model variant is the best model.
 
-%todo add plot
+By looking at the figure \ref{fig:ADD THE PLOT}, we can clearly see that
+the geometric model (orange one)
+is a really good approximation of our data. It even goes through a lot of
+points of the actual data point we have.
+
+%todo add ref plot
 
 
 \subsection{Barabasi-Albert without vertex growth}
