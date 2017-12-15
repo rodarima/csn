@@ -12,7 +12,7 @@ from fitcore import *
 
 # Reproducible runs
 np.random.seed(1)
-VERBOSE = 2
+VERBOSE = 0
 FIT_MEAN = True
 
 # BA models

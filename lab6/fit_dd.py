@@ -16,6 +16,7 @@ GRAPH_MODELS = np.arange(N_GRAPH_MODELS) + 1
 
 # Reproducible runs
 np.random.seed(1)
+VERBOSE=0
 
 # BA models
 
@@ -212,7 +213,7 @@ def compute_info(data):
 
 def fit_model(name, models):
 	data, info = prepare_data(name)
-	fit = Fit(name, data, models, verbose=3, info=info, mle=True)
+	fit = Fit(name, data, models, verbose=VERBOSE, info=info, mle=True)
 	print('BA model {}'.format(name))
 	for i in range(len(models)):
 		model = fit.models[i]
