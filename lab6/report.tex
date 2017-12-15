@@ -5,6 +5,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\graphicspath{ {fig/} }
 \usepackage{listings}
 \usepackage{color}
 \usepackage{float}
@@ -53,7 +54,7 @@ Methods section.
 
 \section{Results}
 
-For table \ref{tab:AICdd}, the columns represents the models where respectively:
+The columns represents the models where respectively:
 
 \begin{itemize}
 		\item A is Barabasi-Albert
@@ -61,73 +62,31 @@ For table \ref{tab:AICdd}, the columns represents the models where respectively:
 		\item C is without vertex growth
 \end{itemize}
 
-The following tables (\ref{tab:AICdd} to \ref{tab:AICdt1000}) uses AIC to
+The tables in annexes (\ref{tab:AICdd} to \ref{tab:AICdt1000}) uses AIC to
 measure $\delta$ between each model.
 
-% AICs
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{modelA/all_dd.png}
+    \caption{Distribution degree for model A}
+    \label{fig:all_dd_A}
+\end{figure}
 
-\begin{table}[H]
-	\centering
-	\input{table/AIC_dd.tex}
-	\caption{$\delta$ for the degree distribution.}
-	\label{tab:AICdd}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/AIC_dt1.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 1$.}
-	\label{tab:AICdt1}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/AIC_dt10.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 10$.}
-	\label{tab:AICdt10}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/AIC_dt100.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 100$.}
-	\label{tab:AICdt100}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/AIC_dt1000.tex}
-	\caption{$\delta$ for the vertex degree over time for $t_i = 1000$.}
-	\label{tab:AICdt1000}
-\end{table}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{modelB/all_dd.png}
+    \caption{Distribution degree for model B}
+    \label{fig:all_dd_B}
+\end{figure}
 
-% Params
-\begin{table}[H]
-	\centering
-	\input{table/param_dd.tex}
-	\caption{Parameters for degree distribution models fitting.}
-	\label{tab:param_dd}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/param_dt1.tex}
-	\caption{Parameters for the vertex degree over time for $t_i = 1$.}
-	\label{tab:paramsdt1}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/param_dt10.tex}
-	\caption{Parameters for the vertex degree over time for $t_i = 10$.}
-	\label{tab:paramsdt10}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/param_dt100.tex}
-	\caption{Parameters for the vertex degree over time for $t_i = 100$.}
-	\label{tab:paramsdt100}
-\end{table}
-\begin{table}[H]
-	\centering
-	\input{table/param_dt1000.tex}
-	\caption{Parameters for the vertex degree over time for $t_i = 1000$.}
-	\label{tab:paramsdt1000}
-\end{table}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{modelC/all_dd.png}
+    \caption{Distribution degree for model C}
+    \label{fig:all_dd_C}
+\end{figure}
+
+% TODO: add dt1->1000 for each model
 
 \section{Discussion}
 
@@ -193,13 +152,14 @@ points of the actual data point we have.
 \subsubsection{Vertex degree over time}
 
 As expected by statement, this model's scaling vertex degree over time should
-fit a linear scale. By computing the AIC (see tables \ref{tab:AICdt1} to
-\ref{tab:AICdt1000}) we have seen that the linear model was good. Also, we are
-really confident by saying it's linear when we look at the plot generated for
-model3, for every $t_is$. However we find that model0, 0+, 2 and 2+ are the
-best. Sometimes it's 0(+), sometimes it's 2(+). Model 2 is represented as
-$at^b$, as b is close to 1 as we can see in tables \ref{tab:AICdt1} to
-\ref{tab:AICdt1000}, which explain this good fit for model 2 and 2+.
+fit a linear scale. By computing the AIC and making the $\delta$ (see tables
+\ref{tab:AICdt1} to \ref{tab:AICdt1000}) we have seen that the linear model
+was good. Also, we are really confident by saying it's linear when we look at
+the plot generated for model3, for every $t_is$. However we find that model0,
+0+, 2 and 2+ are the best. Sometimes it's 0(+), sometimes it's 2(+). Model 2 is
+represented as $at^b$, as b is close to 1 as we can see in tables
+\ref{tab:AICdt1} to \ref{tab:AICdt1000}, which explain this good fit for model
+2 and 2+.
 
 \subsubsection{Degree distribution}
 
@@ -272,6 +232,74 @@ else:
 \end{python}
 
 In the end the degree was represented with the number of stubs.
+
+
+\section*{Annexes}
+
+% AICs
+
+\begin{table}[H]
+	\centering
+	\input{table/AIC_dd.tex}
+	\caption{$\delta$ for the degree distribution.}
+	\label{tab:AICdd}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/AIC_dt1.tex}
+	\caption{$\delta$ for the vertex degree over time for $t_i = 1$.}
+	\label{tab:AICdt1}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/AIC_dt10.tex}
+	\caption{$\delta$ for the vertex degree over time for $t_i = 10$.}
+	\label{tab:AICdt10}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/AIC_dt100.tex}
+	\caption{$\delta$ for the vertex degree over time for $t_i = 100$.}
+	\label{tab:AICdt100}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/AIC_dt1000.tex}
+	\caption{$\delta$ for the vertex degree over time for $t_i = 1000$.}
+	\label{tab:AICdt1000}
+\end{table}
+
+% Params
+\begin{table}[H]
+	\centering
+	\input{table/param_dd.tex}
+	\caption{Parameters for degree distribution models fitting.}
+	\label{tab:param_dd}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/param_dt1.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 1$.}
+	\label{tab:paramsdt1}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/param_dt10.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 10$.}
+	\label{tab:paramsdt10}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/param_dt100.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 100$.}
+	\label{tab:paramsdt100}
+\end{table}
+\begin{table}[H]
+	\centering
+	\input{table/param_dt1000.tex}
+	\caption{Parameters for the vertex degree over time for $t_i = 1000$.}
+	\label{tab:paramsdt1000}
+\end{table}
 
 
 \end{document}
