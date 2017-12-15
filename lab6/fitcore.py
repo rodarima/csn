@@ -97,7 +97,7 @@ class Fit:
 		self.verbose = verbose
 		self.loss = 'soft_l1'
 		self.info = info
-		self.use_mle = mle
+		self.mle = mle
 		self.evolution = evolution
 
 		# Models should be initialized before, so we can add fine params at the
@@ -125,7 +125,7 @@ class Fit:
 
 		warnings.filterwarnings("ignore")
 
-		if self.use_mle:
+		if self.mle:
 			return self.fit_model_mle(model)
 
 		try:
@@ -166,6 +166,31 @@ class Fit:
 
 		model.measures = {'AIC':AIC, 'RSS':RSS} 
 
+	def measure_model_mle(self, model):
+		n = self.n
+		x = self.x
+		y = self.y
+
+		# Compute residual sum of squares RSS
+		L = model.mll(*model.fitted_params)
+		yy = model.run(x)
+		RSS = np.sum((y - yy)**2)
+
+		# Compute Akaike information criterion
+		# XXX Ugly hack: How we access N?
+		N = model.info['N']
+		K = model.get_nparams()
+		AIC = 2*L - 2*K*(N/(N-K-1))
+
+		p = 0
+		AIC2 = n*np.log(2*np.pi) + n*np.log(RSS/n) + n + 2*(p + 1)
+		print('AIC = {} AIC2 = {}'.format(AIC, AIC2))
+
+		# Compute pearson r
+		#pr, pval = pearsonr(y, yy)
+
+		model.measures = {'AIC':AIC, 'AIC2':AIC2, 'RSS':RSS} 
+
 	def best_model(self, measure):
 		if measure == 'AIC':
 			AICs = [m.measures[measure] for m in self.models]
@@ -178,7 +203,10 @@ class Fit:
 			if(self.verbose):
 				print("  Testing model {}".format(model.get_name()))
 			self.fit_model(model)
-			self.measure_model(model)
+			if self.mle == True:
+				self.measure_model_mle(model)
+			else:
+				self.measure_model(model)
 
 class TeXTable:
 	def __init__(self, fits):
