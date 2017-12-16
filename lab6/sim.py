@@ -4,9 +4,8 @@ import numpy as np
 import random
 import time
 
-# FIXME: Place the other models here also
 # Note: index from 0 is used; 2 means model3
-RUN_MODELS = [2]
+RUN_MODELS = [0, 1, 2]
 RUNS = 10
 VERBOSE = 0
 TMAX_POWER = 4
@@ -27,6 +26,7 @@ data_dseq_fmt = 'model{}/dseq_r{}.txt'
 # dt means degree over time
 data_dt_fmt = 'model{}/dt{}_r{}.txt'
 
+names = ['A', 'B', 'C']
 
 def model1(G, steps, m0=1):
 	V = G.vcount()
@@ -135,7 +135,7 @@ def save_dseq(name, dseq, r):
 
 def simulate_model(m, G0, r):
 	model = models[m]
-	name = str(m + 1)
+	name = names[m]
 	print('Simulating model {} up to tmax = {}'.format(name, tmax))
 
 	# First build the starting unconnected graph with 1 vertex

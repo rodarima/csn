@@ -16,7 +16,7 @@ GRAPH_MODELS = np.arange(N_GRAPH_MODELS) + 1
 
 # Reproducible runs
 np.random.seed(1)
-VERBOSE=0
+VERBOSE=2
 
 # BA models
 
@@ -26,26 +26,12 @@ BA_MODELS = ['A', 'B', 'C']
 
 class Model1(Model):
 	name = 'D1'
-	bounds = (0.5, 10)
+	bounds = (0.5, 15)
 	params = ['\lambda']
 	def __init__(self, info):
 		self.info = info
 	def func(self, k, l):
 		return (l**k * np.exp(-l)) / (factorial(k) * (1 - np.exp(-l)))
-	def mll(self, l):
-		M = self.info['M']
-		N = self.info['N']
-		C = self.info['C']
-		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
-
-class Model1c(Model):
-	name = 'D1c'
-	bounds = [[3, 6], [-5, -1], [0.1, 0.8]]
-	params = ['\lambda']
-	def __init__(self, info):
-		self.info = info
-	def func(self, k, l=4.0, dx=-3.0, s=0.4):
-		return s * poisson.pmf(k + dx, l)
 	def mll(self, l):
 		M = self.info['M']
 		N = self.info['N']
@@ -68,9 +54,23 @@ class Model1b(Model):
 		C = self.info['C']
 		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
 
+class Model1c(Model):
+	name = 'D1c'
+	bounds = [[3, 6], [-5, -1], [0.1, 0.8]]
+	params = ['\lambda']
+	def __init__(self, info):
+		self.info = info
+	def func(self, k, l=4.0, dx=-3.0, s=0.4):
+		return s * poisson.pmf(k + dx, l)
+	def mll(self, l):
+		M = self.info['M']
+		N = self.info['N']
+		C = self.info['C']
+		return -(M * np.log(l) - N*(l + np.log(1 - np.exp(-l))) - C)
+
 class Model2(Model):
 	name = 'D2'
-	bounds = (0.1, 10)
+	bounds = (0.01, 1)
 	def __init__(self, info):
 		self.info = info
 	def func(self, k, q):
@@ -112,19 +112,19 @@ class Model4(Model):
 class Model5(Model):
 	name = 'D5'
 	params = ['\gamma', 'k_{\max}']
-	bounds = np.array([[1.8, 3.5], [+10, 30]])
+	bounds = np.array([[1.8, 2.5], [50, 55]])
 	
 	def __init__(self, info):
 		self.info = info
 
 	def rzeta(self, gamma, kmax):
-		i = np.arange(1, kmax+1)
-		return np.sum(i ** (-gamma))
+		i = np.arange(1, kmax)
+		return np.sum(np.power(i, -gamma)) + np.power(kmax, -gamma)
 
 	def func(self, k, g=3.0, kmax=100.0):
 		return k**(-g) / self.rzeta(g, kmax)
 
-	def mll(self, g=2.0, kmax=20.0):
+	def mll(self, g=2.0, kmax=51.0):
 		if type(g) == np.ndarray:
 			kmax = g[1]
 			g = g[0]
@@ -133,7 +133,9 @@ class Model5(Model):
 
 		MM = self.info['MM']
 		N = self.info['N']
-		return -(-g * MM - N * np.log(self.rzeta(g, kmax)))
+		v = -(-g * MM - N * np.log(self.rzeta(g, kmax)))
+		#print("v = {}".format(v))
+		return v
 
 
 models = [Model1, Model2, Model3, Model4, Model5]
@@ -151,7 +153,7 @@ dataset_fmt = 'model{}/dd_r{}.txt'
 
 N_DATASETS = 3
 
-runs = 1
+runs = 10
 
 def prepare_data(name):
 	datasets = []
@@ -176,7 +178,7 @@ def prepare_data(name):
 
 	# Now we merge all datasets into data
 	data = all_data[1:]
-	data = data[data[:,1] >= 1]
+	data = data[data[:,1] > 0]
 
 	# Compute the info params from the data, not prob
 	info = compute_info(data)
@@ -236,17 +238,27 @@ def main(models):
 		fits.append(fit)
 
 		# Save plots
-		fig_fmt = 'model{}/all_dd.pdf'
 
 		pf = PlotFit(fit)
+
+		fig_fmt = 'model{}/all_dd.pdf'
 		fn = fig_dir + fig_fmt.format(fit.name)
-		print('Saving figure {}'.format(fn))
 		pf.comparison('AIC', 'Comparison AIC model {}'.format(fit.name),
+			fn, xlabel='$k$', ylabel='$p(k)$')
+
+		fig_fmt = 'model{}/all_log_dd.pdf'
+		fn = fig_dir + fig_fmt.format(fit.name)
+		pf.comparison('AIC', 'Comparison AIC model {} (log scale)'.format(fit.name),
 			fn, xlabel='$k$', ylabel='$p(k)$', log=True)
 
 		fig_fmt = 'model{}/best_dd.pdf'
 		fn = fig_dir + fig_fmt.format(fit.name)
 		pf.best('AIC', 'Best fit for model {}'.format(fit.name),
+			fn, xlabel='$k$', ylabel='$p(k)$')
+
+		fig_fmt = 'model{}/best_log_dd.pdf'
+		fn = fig_dir + fig_fmt.format(fit.name)
+		pf.best('AIC', 'Best fit for model {} (log scale)'.format(fit.name),
 			fn, xlabel='$k$', ylabel='$p(k)$', log=True)
 
 	table = TeXTable(fits)

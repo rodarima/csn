@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import differential_evolution, curve_fit, minimize
+from scipy.stats import pearsonr
 from itertools import cycle
 from tabulate2 import tabulate
 import warnings
@@ -162,9 +163,9 @@ class Fit:
 		AIC = n*np.log(2*np.pi) + n*np.log(RSS/n) + n + 2*(p + 1)
 
 		# Compute pearson r
-		#pr, pval = pearsonr(y, yy)
+		pr, pval = pearsonr(y, yy)
 
-		model.measures = {'AIC':AIC, 'RSS':RSS} 
+		model.measures = {'AIC':AIC, 'RSS':RSS, 'pearson':pr} 
 
 	def measure_model_mle(self, model):
 		n = self.n
@@ -187,9 +188,9 @@ class Fit:
 		print('AIC = {} AIC2 = {}'.format(AIC, AIC2))
 
 		# Compute pearson r
-		#pr, pval = pearsonr(y, yy)
+		pr, pval = pearsonr(y, yy)
 
-		model.measures = {'AIC':AIC, 'AIC2':AIC2, 'RSS':RSS} 
+		model.measures = {'AIC':AIC, 'AIC2':AIC2, 'RSS':RSS, 'pearson':pr} 
 
 	def best_model(self, measure):
 		if measure == 'AIC':
@@ -239,7 +240,7 @@ class TeXTable:
 			headers.append(name)
 		return headers
 
-	def diff_measure(self, measure, title='Dataset', fmt='.3f',
+	def diff_measure(self, measure, title='Dataset', fmt='.3E',
 		transpose=False):
 
 		table = self._table_diff_measure(measure)
@@ -262,6 +263,7 @@ class TeXTable:
 			tex_table)
 
 		tex_table = re.sub(' inf ', r'$\\infty$', tex_table)
+		tex_table = re.sub(' INF ', r'$\\infty$', tex_table)
 
 		return tex_table
 
@@ -286,7 +288,7 @@ class TeXTable:
 
 		return table
 
-	def compare_param(self, title='Dataset', fmt='.3f',
+	def compare_param(self, title='Dataset', fmt='.3E',
 		transpose=False):
 
 		table = self._table_compare_param()
@@ -309,6 +311,7 @@ class TeXTable:
 			tex_table)
 
 		tex_table = re.sub(' inf ', r'$\\infty$', tex_table)
+		tex_table = re.sub(' INF ', r'$\\infty$', tex_table)
 
 		return tex_table
 
@@ -327,7 +330,7 @@ class PlotFit:
 		yy = model.fitted_data
 		
 		if measure != None:
-			label = '{} {} = {:.2f}'.format(model.get_name(),
+			label = '{} {} = {:.3E}'.format(model.get_name(),
 				measure, model.measures[measure])
 		else: label = model.get_name()
 		
@@ -385,6 +388,7 @@ class PlotFit:
 		self.scale_to_data()
 
 		plt.legend()
+		plt.grid()
 		plt.savefig(fn, bbox_inches='tight')
 		plt.close()
 
@@ -417,6 +421,7 @@ class PlotFit:
 		self.scale_to_data()
 
 		plt.legend()
+		plt.grid()
 		plt.savefig(fn, bbox_inches='tight')
 		plt.close()
 
