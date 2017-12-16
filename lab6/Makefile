@@ -1,6 +1,6 @@
 all: report.pdf
 
-report.pdf: report.tex tables_dd tables_dd tables_dt
+report.pdf: report.tex tables_dd tables_dt
 	#pdflatex -shell-escape report.tex
 	latexmk -latexoption=-shell-escape -latexoption=-file-line-error -pdf report.tex
 	@kill -HUP $$(pidof mupdf)
